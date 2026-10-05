@@ -890,7 +890,7 @@
       members.forEach(m => {
         const isHolder = m.id === 'salahuddin';
         const badge = isHolder ? ' <span class="dps-holder-pill" title="DPS Account Holder">DPS</span>' : '';
-        memberThs += `<th class="col-member">${escapeHtml(m.name)}${badge}</th>`;
+        memberThs += `<th class="col-member">${escapeHtml(m.name)}</th>`;
       });
       thead.innerHTML = `
         <tr>
