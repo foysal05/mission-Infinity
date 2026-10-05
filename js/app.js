@@ -2449,7 +2449,7 @@
           ${rowsHtml}
           <tr class="total-row">
             <td colspan="3" style="font-weight:800;text-align:right;">TOTAL CLEARED:</td>
-            <td style="text-align:right;font-family:monospace;font-weight:800;">৳${formatNumber(paidTotal)}</td>
+            <td style="text-align:right;font-family:'JetBrains Mono', monospace;font-weight:800;"><span style="font-family:var(--font-bengali);font-weight:700;margin-right:2px;">৳</span>${formatNumber(paidTotal)}</td>
             <td colspan="2" style="font-size:0.75rem;color:#059669;">Audited &amp; Verified</td>
           </tr>
         </tbody>
@@ -2457,13 +2457,13 @@
 
       <div class="print-sign-row">
         <div class="print-sign-line">
-          Prepared By / Auditor
+          প্রস্তুতকারক
         </div>
         <div class="print-sign-line">
-          Member Signature (${escapeHtml(member.name)})
+          সভাপতি
         </div>
         <div class="print-sign-line">
-          Branch Manager (Kadair Bazar)
+          সাধারণ সম্পাদক
         </div>
       </div>
     `;

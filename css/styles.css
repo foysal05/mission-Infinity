@@ -4804,16 +4804,19 @@ a:hover {
     display: flex;
     justify-content: space-between;
     padding: 0 2rem;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   .print-sign-line {
     width: 200px;
-    border-top: 1px solid #0f172a;
+    border-top: 1.5px solid #0f172a;
     text-align: center;
-    padding-top: 0.4rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #334155;
+    padding-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    font-family: var(--font-bengali);
   }
 
   .site-header,
