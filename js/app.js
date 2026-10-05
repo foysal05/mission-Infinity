@@ -931,7 +931,7 @@
           </td>
           ${gtCells}
           <td class="cell-total" style="font-size:0.95rem;">${formatNumber(gt.docsTotal)}</td>
-          <td style="text-align:center;"><span class="status-verified-pill">✓ Verified</span></td>
+          <td></td>
         </tr>
         <tr class="row-adjustment">
           <td class="col-sticky-1"><span class="badge-tfoot adj">IFTER</span></td>
@@ -941,7 +941,7 @@
           </td>
           ${adjCells}
           <td class="cell-total">${formatNumber(adj.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;font-weight:600;color:#b45309;">Rubel &amp; Zia</td>
+          <td></td>
         </tr>
         <tr class="row-net">
           <td class="col-sticky-1"><span class="badge-tfoot net">DPS NET</span></td>
@@ -951,7 +951,7 @@
           </td>
           ${netCells}
           <td class="cell-total">${formatNumber(net.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;font-weight:600;color:#4338ca;">Equal Share</td>
+          <td></td>
         </tr>
         <tr class="row-dps">
           <td class="col-sticky-1"><span class="badge-tfoot dps">EXTRA</span></td>
@@ -961,7 +961,7 @@
           </td>
           ${dpsCells}
           <td class="cell-total">${formatNumber(dps.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;font-weight:600;color:#0e7490;">Mutual Trust Bank</td>
+          <td></td>
         </tr>
       `;
     }
@@ -1229,8 +1229,8 @@
         </div>
       </div>
 
-      <div id="memberTableContainer" style="max-height:380px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-md);">
-        <table class="ledger-table" style="font-size:0.8rem;">
+      <div id="memberTableContainer" style="max-height:380px;overflow-y:auto;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border-color);border-radius:var(--radius-md);">
+        <table class="ledger-table" style="font-size:0.8rem;min-width:480px;width:100%;">
           <thead>
             <tr>
               <th style="padding:0.6rem 0.8rem;">Year</th>
@@ -1587,35 +1587,108 @@
     const data = state.data;
     if (!data) return;
 
-    let csv = 'Mission Infinity - Mutual Trust Bank & DPS Ledger\n';
-    csv += `Bank: ${data.bankInfo.bankName}, Branch: ${data.bankInfo.branch}, A/C: ${data.bankInfo.accountNumber}, DPS: ${data.bankInfo.dpsNumber}\n\n`;
+    const lines = [];
 
-    const headers = ['Year', 'Month', ...data.members.map(m => `"${m.name}"`), 'Docs Total', 'Notes'];
-    csv += headers.join(',') + '\n';
+    // 1. Executive Master Letterhead Header
+    lines.push('"======================================================================================================================================"');
+    lines.push('"MISSION INFINITY — MUTUAL TRUST BANK & DPS MASTER LEDGER"');
+    lines.push('"OFFICIAL CONSOLIDATED FINANCIAL AUDIT STATEMENT"');
+    lines.push('"======================================================================================================================================"');
+    lines.push(`"Bank Name: ${data.bankInfo.bankName} Limited"`);
+    lines.push(`"Branch: ${data.bankInfo.branch} Branch"`);
+    lines.push(`"Principal Account No: ${data.bankInfo.accountNumber}"`);
+    lines.push(`"DPS Joint Account No: ${data.bankInfo.dpsNumber}"`);
+    lines.push(`"DPS Joint Account Holders: ${data.bankInfo.dpsHolder || 'SALAHUDDIN & SHAHADAT HOSSAIN'}"`);
+    lines.push(`"Total Registered Members: ${data.members.length} Active Members"`);
+    lines.push(`"Total Tenure & Records: ${data.records.length} Monthly Installments (2025 - 2028)"`);
+    lines.push(`"Report Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}"`);
+    lines.push('"Currency: Bangladeshi Taka (BDT)"');
+    lines.push('"======================================================================================================================================"');
+    lines.push('');
 
-    data.records.forEach(r => {
+    // 2. Column Headers
+    const memberHeaders = data.members.map(m => `"${m.name.toUpperCase()} (BDT)"`);
+    const headers = ['SL', 'Year', 'Month', ...memberHeaders, 'Monthly Total (BDT)', 'Audit Notes / Allocation Remarks'];
+    lines.push(headers.join(','));
+
+    // 3. Data Records
+    data.records.forEach((r, idx) => {
       const row = [
+        idx + 1,
         r.year,
         `"${r.month}"`,
-        ...data.members.map(m => (r.payments[m.id] !== null ? r.payments[m.id] : '')),
+        ...data.members.map(m => (r.payments[m.id] !== null && r.payments[m.id] !== undefined ? r.payments[m.id] : 0)),
         r.total || 0,
         `"${(r.note || '').replace(/"/g, '""')}"`
       ];
-      csv += row.join(',') + '\n';
+      lines.push(row.join(','));
     });
 
-    csv += '\n';
-    const gtRow = ['GRAND TOTAL', '', ...data.members.map(m => data.summary.grandTotal.members[m.id] || 0), data.summary.grandTotal.docsTotal, ''];
-    const adjRow = ['IFTER DONATION', '', ...data.members.map(m => data.summary.adjustment.members[m.id] || 0), data.summary.adjustment.docsTotal, ''];
-    const netRow = ['DPS NET AMOUNT', '', ...data.members.map(m => data.summary.netTotal.members[m.id] || 0), data.summary.netTotal.docsTotal, ''];
-    const dpsRow = ['EXTRA ALLOCATION', '', ...data.members.map(m => data.summary.dpsTarget.members[m.id] || 0), data.summary.dpsTarget.docsTotal, ''];
+    // 4. Executive Summary Block
+    lines.push('');
+    lines.push('"--------------------------------------------------------------------------------------------------------------------------------------"');
+    lines.push('"CONSOLIDATED EXECUTIVE SUMMARY & DPS FUND RECONCILIATION"');
+    lines.push('"--------------------------------------------------------------------------------------------------------------------------------------"');
 
-    csv += gtRow.join(',') + '\n';
-    csv += adjRow.join(',') + '\n';
-    csv += netRow.join(',') + '\n';
-    csv += dpsRow.join(',') + '\n';
+    // Summary Header
+    const summaryHeader = [
+      '"Audit Summary Metric"',
+      '',
+      '',
+      ...data.members.map(m => `"${m.name.toUpperCase()} (BDT)"`),
+      '"Consolidated Total (BDT)"',
+      '"Audit Reference / Verification"'
+    ];
+    lines.push(summaryHeader.join(','));
 
-    downloadCSV(csv, `mission_infinity_ledger_${new Date().toISOString().split('T')[0]}.csv`);
+    // 4.1 Grand Total Deposited
+    const gtRow = [
+      '"GRAND TOTAL DEPOSITED"',
+      '',
+      '',
+      ...data.members.map(m => data.summary.grandTotal.members[m.id] || 0),
+      data.summary.grandTotal.docsTotal,
+      '"Verified Official MTB Bank Deposit (48 Months)"'
+    ];
+    lines.push(gtRow.join(','));
+
+    // 4.2 Ifter Donation Adjustment
+    const adjRow = [
+      '"IFTER DONATION ADJUSTMENT (LESS)"',
+      '',
+      '',
+      ...data.members.map(m => data.summary.adjustment.members[m.id] || 0),
+      data.summary.adjustment.docsTotal,
+      '"Shared Annual Contribution Deducted (Rubel & Zia)"'
+    ];
+    lines.push(adjRow.join(','));
+
+    // 4.3 DPS Net Fund Share
+    const netRow = [
+      '"DPS NET FUND SHARE"',
+      '',
+      '',
+      ...data.members.map(m => data.summary.netTotal.members[m.id] || 0),
+      data.summary.netTotal.docsTotal,
+      '"Principal Accumulated Balance (Grand Total - Donation)"'
+    ];
+    lines.push(netRow.join(','));
+
+    // 4.4 Extra Allocation Target
+    const dpsRow = [
+      '"EXTRA ALLOCATION TARGET"',
+      '',
+      '',
+      ...data.members.map(m => data.summary.dpsTarget.members[m.id] || 0),
+      data.summary.dpsTarget.docsTotal,
+      '"Mutual Trust Bank DPS Maturity Target Share"'
+    ];
+    lines.push(dpsRow.join(','));
+
+    lines.push('"======================================================================================================================================"');
+
+    const csv = lines.join('\n');
+    downloadCSV(csv, `mission_infinity_master_ledger_${new Date().toISOString().split('T')[0]}.csv`);
     showToast('Master ledger downloaded as CSV', 'success');
   };
 
@@ -1787,17 +1860,31 @@
     const lines = [];
     const d = delimiter;
 
+    let filterLabel = 'Complete Ledger (All 48 Months)';
+    if (filter === 'paid') filterLabel = 'Paid Installments Only';
+    else if (filter === 'upcoming') filterLabel = 'Scheduled / Upcoming Installments';
+    else if (filter === '2025') filterLabel = 'Year 2025 Installments';
+    else if (filter === '2026') filterLabel = 'Year 2026 Installments';
+
     if (includeHeader) {
-      lines.push(`"Mission Infinity - Official Financial Statement"`);
-      lines.push(`"Member: ${member.name}"${d}"Role: ${member.role}"`);
-      lines.push(`"Bank: ${data.bankInfo.bankName}"${d}"Branch: ${data.bankInfo.branch}"`);
-      lines.push(`"A/C: ${data.bankInfo.accountNumber}"${d}"DPS A/C: ${data.bankInfo.dpsNumber}"${d}"DPS Holder: ${data.bankInfo.dpsHolder}"`);
-      lines.push(`"Statement Date: ${new Date().toLocaleDateString('en-GB')}"${d}"Filter: ${filter.toUpperCase()}"`);
+      lines.push('"===================================================================================================="');
+      lines.push('"MISSION INFINITY — MUTUAL TRUST BANK & DPS LEDGER PORTAL"');
+      lines.push('"OFFICIAL MEMBER FINANCIAL STATEMENT"');
+      lines.push('"===================================================================================================="');
+      lines.push(`"Member Name: ${member.name.toUpperCase()}"`);
+      lines.push(`"Designation / Role: ${member.role}"`);
+      lines.push(`"Personal Bank A/C: ${data.bankInfo.accountNumber}"`);
+      lines.push(`"Bank & Branch: ${data.bankInfo.bankName} (${data.bankInfo.branch} Branch)"`);
+      lines.push(`"DPS Joint Account: ${data.bankInfo.dpsNumber} (Holders: ${data.bankInfo.dpsHolder || member.name})"`);
+      lines.push(`"Statement Scope: ${filterLabel}"`);
+      lines.push(`"Statement Date: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}"`);
+      lines.push('"Currency: Bangladeshi Taka (BDT)"');
+      lines.push('"===================================================================================================="');
       lines.push('');
     }
 
-    const headers = ['Year', 'Month', 'Amount (BDT)', 'Status'];
-    if (includeNotes) headers.push('Notes');
+    const headers = ['SL', 'Year', 'Month', 'Amount (BDT)', 'Payment Status'];
+    if (includeNotes) headers.push('Audit Notes / Special Allocation');
     lines.push(headers.join(d));
 
     let recordList = data.records;
@@ -1812,16 +1899,17 @@
     }
 
     let subtotal = 0;
-    recordList.forEach(r => {
+    recordList.forEach((r, idx) => {
       const p = r.payments[member.id];
       const hasPaid = p !== null && p > 0;
       if (hasPaid) subtotal += p;
 
       const row = [
+        idx + 1,
         r.year,
         `"${r.month}"`,
         hasPaid ? p : 0,
-        hasPaid ? 'Paid' : 'Scheduled'
+        `"${hasPaid ? 'Paid' : 'Scheduled'}"`
       ];
       if (includeNotes) {
         row.push(`"${(r.note || '').replace(/"/g, '""')}"`);
@@ -1831,11 +1919,69 @@
 
     if (includeSummary) {
       lines.push('');
-      lines.push([`"FILTER SUBTOTAL"`, `"${filter.toUpperCase()}"`, subtotal, `"${recordList.length} Rows"`].slice(0, headers.length).join(d));
-      lines.push([`"GRAND TOTAL DEPOSITED"`, `""`, data.summary.grandTotal.members[member.id] || 0, `"Verified"`].slice(0, headers.length).join(d));
-      lines.push([`"IFTER DONATION"`, `""`, data.summary.adjustment.members[member.id] || 0, `"Rubel & Zia"`].slice(0, headers.length).join(d));
-      lines.push([`"DPS NET AMOUNT"`, `""`, data.summary.netTotal.members[member.id] || 0, `"Fund Balance"`].slice(0, headers.length).join(d));
-      lines.push([`"EXTRA ALLOCATION"`, `""`, data.summary.dpsTarget.members[member.id] || 0, `"Target Share"`].slice(0, headers.length).join(d));
+      lines.push('"----------------------------------------------------------------------------------------------------"');
+      lines.push('"EXECUTIVE FINANCIAL SUMMARY & AUDIT RECONCILIATION"');
+      lines.push('"----------------------------------------------------------------------------------------------------"');
+
+      const summaryHeader = [
+        '"Audit Summary Metric"',
+        '',
+        '',
+        '"Amount (BDT)"',
+        '"Status / Scope"'
+      ];
+      if (includeNotes) summaryHeader.push('"Verification / Reference"');
+      lines.push(summaryHeader.join(d));
+
+      const summaryRows = [
+        [
+          '"FILTER SUBTOTAL"',
+          '',
+          '',
+          subtotal,
+          `"${recordList.length} Installments"`,
+          includeNotes ? `"${filterLabel} total"` : null
+        ],
+        [
+          '"GRAND TOTAL DEPOSITED"',
+          '',
+          '',
+          data.summary.grandTotal.members[member.id] || 0,
+          '"Verified"',
+          includeNotes ? '"Official Mutual Trust Bank Ledger Total"' : null
+        ],
+        [
+          '"IFTER DONATION (LESS)"',
+          '',
+          '',
+          data.summary.adjustment.members[member.id] || 0,
+          '"Deducted"',
+          includeNotes ? '"Shared Annual Contribution (Rubel & Zia)"' : null
+        ],
+        [
+          '"DPS NET FUND SHARE"',
+          '',
+          '',
+          data.summary.netTotal.members[member.id] || 0,
+          '"Principal Balance"',
+          includeNotes ? '"Grand Total minus Ifter Donation"' : null
+        ],
+        [
+          '"EXTRA ALLOCATION TARGET"',
+          '',
+          '',
+          data.summary.dpsTarget.members[member.id] || 0,
+          '"Target Base"',
+          includeNotes ? '"Mutual Trust Bank DPS Maturity Target Share"' : null
+        ]
+      ];
+
+      summaryRows.forEach(sRow => {
+        const filtered = sRow.filter(cell => cell !== null);
+        lines.push(filtered.join(d));
+      });
+
+      lines.push('"===================================================================================================="');
     }
 
     return lines.join('\n');
@@ -2255,8 +2401,8 @@
     printContainer.innerHTML = `
       <div class="print-bank-header">
         <div>
-          <div class="print-bank-title">${escapeHtml(data.bankInfo.bankName)}</div>
-          <div class="print-bank-sub">Branch: ${escapeHtml(data.bankInfo.branch)} • DPS Portal Ledger System</div>
+          <div class="print-bank-title">Mission Infinity</div>
+          <div class="print-bank-sub">${escapeHtml(data.bankInfo.bankName)} Limited • Branch: ${escapeHtml(data.bankInfo.branch)} • DPS Portal Ledger System</div>
           <div class="print-bank-sub">Main Account No: <strong>${data.bankInfo.accountNumber}</strong> | DPS Account No: <strong>${data.bankInfo.dpsNumber}</strong></div>
         </div>
         <div style="text-align:right;">

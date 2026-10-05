@@ -3643,6 +3643,435 @@ a:hover {
 }
 
 /* ===================================================================
+   Complete Mobile Responsiveness Engine (Phones & Tablets)
+   =================================================================== */
+
+@media (max-width: 768px) {
+  /* Container & Layout */
+  .app-container {
+    padding: 0.65rem 0.65rem 1.5rem 0.65rem;
+  }
+
+  /* Header Section */
+  .site-header {
+    padding: 0.85rem 0.95rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+  }
+
+  .header-top {
+    gap: 0.85rem;
+  }
+
+  .brand-section {
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .brand-logo-badge {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .brand-info h1 {
+    font-size: 1.18rem;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .brand-info h1 .brand-tag {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+  }
+
+  .brand-info p {
+    font-size: 0.75rem;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+
+  .header-controls {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.5rem;
+  }
+
+  .sync-status-badge {
+    grid-column: span 3;
+    justify-content: center;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.72rem;
+  }
+
+  .header-controls .btn {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.78rem;
+    justify-content: center;
+  }
+
+  .header-controls #btnPrintLedger {
+    display: none; /* Mobile users use Export CSV or in-app modals */
+  }
+
+  .header-controls #btnThemeToggle {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Header Meta Bar */
+  .header-meta-bar {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    gap: 0.5rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .meta-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .meta-item {
+    font-size: 0.72rem;
+    gap: 0.3rem;
+    background: var(--bg-secondary);
+    padding: 0.25rem 0.55rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+  }
+
+  /* Navigation Tabs */
+  .nav-tabs-wrapper {
+    margin-bottom: 1rem;
+  }
+
+  .nav-tabs-container {
+    padding: 0.1rem 0.1rem 0.4rem 0.1rem;
+  }
+
+  .nav-tabs {
+    padding: 0.25rem;
+    gap: 0.25rem;
+  }
+
+  .nav-tab-btn {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.78rem;
+    gap: 0.35rem;
+  }
+
+  .tab-badge {
+    font-size: 0.62rem;
+    padding: 0.1rem 0.35rem;
+  }
+
+  /* KPI Grid on Mobile: Clean 2x2 Grid */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .kpi-card {
+    padding: 0.85rem 0.95rem;
+    border-radius: var(--radius-md);
+  }
+
+  .kpi-card:last-child {
+    grid-column: span 2;
+  }
+
+  .kpi-title {
+    font-size: 0.68rem;
+  }
+
+  .kpi-amount {
+    font-size: 1.25rem;
+  }
+
+  .kpi-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .kpi-subtext {
+    font-size: 0.7rem;
+  }
+
+  /* Master Table Controls Bar */
+  .table-controls-bar {
+    padding: 0.75rem 0.85rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .filter-group {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.2rem;
+    scrollbar-width: none;
+    gap: 0.35rem;
+  }
+
+  .filter-group::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-btn-pill {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .btn-focus-current {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.78rem;
+    padding: 0.45rem 0.85rem;
+  }
+
+  .search-box-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .search-input {
+    width: 100%;
+    font-size: 0.825rem;
+    padding: 0.45rem 0.75rem 0.45rem 2.2rem;
+  }
+
+  /* Master Table Container */
+  .table-card {
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+  }
+
+  .table-responsive {
+    max-height: calc(100vh - 270px);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Compact Sticky Columns for Mobile Viewport */
+  .ledger-table thead th.col-sticky-1,
+  .ledger-table tbody td.col-sticky-1,
+  .ledger-table tfoot td.col-sticky-1 {
+    width: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
+    padding: 0.5rem 0.2rem !important;
+    font-size: 0.72rem !important;
+    text-align: center !important;
+  }
+
+  .ledger-table thead th.col-sticky-2,
+  .ledger-table tbody td.col-sticky-2,
+  .ledger-table tfoot td.col-sticky-2 {
+    left: 52px !important;
+    width: 78px !important;
+    min-width: 78px !important;
+    max-width: 78px !important;
+    padding: 0.5rem 0.4rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .ledger-table thead th {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.68rem;
+  }
+
+  .ledger-table tbody td {
+    padding: 0.55rem 0.45rem;
+    font-size: 0.78rem;
+  }
+
+  .ledger-table .col-member {
+    min-width: 82px;
+  }
+
+  .ledger-table .col-total {
+    min-width: 90px;
+  }
+
+  .ledger-table .col-status {
+    min-width: 130px;
+  }
+
+  /* Table Footer Compact Styling */
+  .badge-tfoot {
+    font-size: 0.58rem !important;
+    padding: 0.15rem 0.3rem !important;
+    letter-spacing: 0 !important;
+  }
+
+  .row-grand-total td,
+  .row-adjustment td,
+  .row-net td,
+  .row-dps td {
+    padding: 0.5rem 0.4rem !important;
+  }
+
+  /* Members Grid */
+  .members-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .member-card {
+    padding: 1.15rem;
+    border-radius: var(--radius-md);
+  }
+
+  /* Modals on Mobile */
+  .modal-backdrop {
+    padding: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .modal-dialog {
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 94vh !important;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  }
+
+  .modal-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1.05rem;
+  }
+
+  .modal-body {
+    padding: 0.85rem 1rem;
+    max-height: calc(94vh - 130px);
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    padding: 0.85rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .modal-footer > div {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .modal-footer button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Export Popover in Member Modal */
+  .interactive-export-popover {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    top: auto;
+    bottom: 5rem;
+    width: auto;
+    max-width: calc(100vw - 2rem);
+    z-index: 9999;
+  }
+
+  /* Export Studio on Mobile */
+  .studio-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .studio-card {
+    padding: 0.85rem;
+  }
+
+  .studio-preview-code-box {
+    max-height: 220px;
+    font-size: 0.68rem;
+  }
+
+  .studio-actions-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .studio-actions-footer button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Calculator on Mobile */
+  .calc-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .calc-panel {
+    padding: 1.15rem;
+  }
+
+  .calc-results-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+  }
+
+  /* Charts on Mobile */
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .chart-card {
+    padding: 1rem;
+  }
+
+  .chart-container-wrap {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 0.5rem 0.4rem 1.25rem 0.4rem;
+  }
+
+  .header-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .header-controls #btnThemeToggle {
+    grid-column: span 2;
+    width: 100%;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .calc-results-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-amount {
+    font-size: 1.15rem;
+  }
+}
+
+/* ===================================================================
    Official Bank Statement Print Stylesheet
    =================================================================== */
 
