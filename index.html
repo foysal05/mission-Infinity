@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mission Infinity — Mutual Trust Bank & DPS Ledger Portal</title>
+  <meta name="description" content="Mission Infinity — Interactive financial ledger and DPS contribution tracking portal for Mutual Trust Bank (Kadair Bazar Branch). Real-time member ledgers, analytics, and projections.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♾️</text></svg>">
+
+  <!-- Google Fonts: Outfit (Headings), Inter (Body), JetBrains Mono (Financial Data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Chart.js for Visual Analytics & Projections -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Main Application Wrapper -->
+  <div class="app-container">
+
+    <!-- ===============================================================
+         Header Section
+         =============================================================== -->
+    <header class="site-header">
+      <div class="header-top">
+        <div class="brand-section">
+          <div class="brand-logo-badge" title="Mission Infinity Portal">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 12c-2-2.5-4-4-6.5-4a4.5 4.5 0 1 0 0 9c2.5 0 4.5-1.5 6.5-4 2 2.5 4 4 6.5 4a4.5 4.5 0 1 0 0-9c-2.5 0-4.5 1.5-6.5 4z"></path>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <h1>
+              Mission Infinity
+              <span class="brand-tag">MTB &amp; DPS LEDGER PORTAL</span>
+            </h1>
+            <p>
+              <span class="bank-tag">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                Mutual Trust Bank Limited
+              </span>
+              <span>•</span>
+              <span>Branch: <strong>Kadair Bazar</strong></span>
+              <span>•</span>
+              <span>4-Year DPS Term (2025–2028)</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="header-controls">
+          <!-- Live Sync Status Badge -->
+          <div class="sync-status-badge" id="syncStatusBadge" title="Live Google Sheet Connection Status">
+            <span class="sync-dot" id="syncDot"></span>
+            <span id="syncLabel">Connecting Live Sheet...</span>
+          </div>
+
+          <!-- Refresh Data Button -->
+          <button class="btn btn-secondary" id="btnRefreshData" title="Refresh latest data directly from Google Sheets">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Sync Now
+          </button>
+
+          <!-- Export Master CSV -->
+          <button class="btn btn-secondary" id="btnExportMasterCSV" title="Download entire ledger in CSV format">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+          </button>
+
+          <!-- Print / PDF Button -->
+          <button class="btn btn-secondary" id="btnPrintLedger" title="Print ledger or save as PDF">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print
+          </button>
+
+          <!-- Theme Toggle Button -->
+          <button class="btn btn-icon-only" id="btnThemeToggle" title="Toggle Dark / Light Mode" aria-label="Toggle theme">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Secondary Meta Information Bar with 1-Click Copy -->
+      <div class="header-meta-bar">
+        <div class="meta-badges">
+          <div class="meta-item">
+            <span>Bank:</span>
+            <strong>Mutual Trust Bank</strong>
+          </div>
+          <div class="meta-item">
+            <span>Branch:</span>
+            <strong>Kadair Bazar</strong>
+          </div>
+          <div class="meta-item">
+            <span>A/C Number:</span>
+            <span class="copyable-badge" onclick="copyToClipboard('1311002535350', 'Account Number')" title="Click to copy account number">
+              1311002535350
+              <svg class="copy-icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </span>
+          </div>
+          <div class="meta-item">
+            <span>DPS Account:</span>
+            <span class="copyable-badge" onclick="copyToClipboard('1308010659554', 'DPS Number')" title="Click to copy DPS account number">
+              1308010659554
+              <svg class="copy-icon-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </span>
+          </div>
+          <div class="meta-item">
+            <span>DPS Holder:</span>
+            <strong>SALAHUDDIN</strong>
+          </div>
+        </div>
+
+        <div class="meta-item" style="color:var(--text-secondary);font-size:0.75rem;">
+          <span>Target Horizon: <strong>48 Installments (2025–2028)</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===============================================================
+         Navigation Tabs
+         =============================================================== -->
+    <nav class="nav-tabs-wrapper" aria-label="Main Navigation">
+      <div class="nav-tabs">
+        <button class="nav-tab-btn active" data-tab="dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Executive Overview
+        </button>
+
+        <button class="nav-tab-btn" data-tab="ledger">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Master Ledger Table
+          <span class="tab-badge">48 Mos</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="members">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Member Profiles &amp; Ledgers
+          <span class="tab-badge">7</span>
+        </button>
+
+        <button class="nav-tab-btn" data-tab="analytics">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Visual Analytics &amp; Trends
+        </button>
+
+        <button class="nav-tab-btn" data-tab="calculator">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg>
+          DPS &amp; Growth Calculator
+        </button>
+
+        <button class="nav-tab-btn" data-tab="embed">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          Live Google Sheet
+        </button>
+      </div>
+    </nav>
+
+    <!-- ===============================================================
+         VIEW 1: Executive Dashboard
+         =============================================================== -->
+    <main id="view-dashboard" class="view-section active">
+      <!-- KPI Grid -->
+      <div class="kpi-grid">
+        <!-- KPI 1: Total Deposited -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Total Collected (মোট জমা)</span>
+            <div class="kpi-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpiTotalDeposited">
+            <span class="currency-symbol">৳</span>572,631
+          </div>
+          <div class="kpi-subtext">
+            <span>Verified across 21 active installments</span>
+          </div>
+        </div>
+
+        <!-- KPI 2: Net Fund Balance -->
+        <div class="kpi-card accent-indigo">
+          <div class="kpi-header">
+            <span class="kpi-title">DPS Net Amount (মূল তহবিল)</span>
+            <div class="kpi-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpiNetBalance">
+            <span class="currency-symbol">৳</span>534,681
+          </div>
+          <div class="kpi-subtext">
+            <span>Equalized ৳76,383 per active member</span>
+          </div>
+        </div>
+
+        <!-- KPI 3: DPS Target Allocation -->
+        <div class="kpi-card accent-cyan">
+          <div class="kpi-header">
+            <span class="kpi-title">Extra Allocation (অতিরিক্ত বরাদ্দ)</span>
+            <div class="kpi-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpiDpsAllocation">
+            <span class="currency-symbol">৳</span>120,001
+          </div>
+          <div class="kpi-subtext">
+            <span>৳17,143 committed per member</span>
+          </div>
+        </div>
+
+        <!-- KPI 4: Special Adjustments -->
+        <div class="kpi-card accent-amber">
+          <div class="kpi-header">
+            <span class="kpi-title">Ifter Donation (ইফতার অনুদান)</span>
+            <div class="kpi-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpiAdjustments">
+            <span class="currency-symbol">৳</span>32,450
+          </div>
+          <div class="kpi-subtext">
+            <span>Distributed (৳6,325 × 6 members)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Important Notices Callout -->
+      <div class="notice-card">
+        <div class="notice-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <div class="notice-content">
+          <h4>Special Financial Notices &amp; Fund Audits</h4>
+          <p>
+            Official ledger notation for <strong>December 2025</strong>:
+            <br>
+            <span class="bengali-text">"রুবেল &amp; জিয়ার টাকা সবার মধ্যে 1980/= করে ভাগ করে দেওয়া হলো."</span>
+            <br>
+            Official allocation notice for <strong>Iftar 2026</strong>:
+            <br>
+            <span class="bengali-text" style="color:#86efac;background:rgba(16,185,129,0.12);">"ইফতার ২০২৬, আমাদের তহবিল থেকে খরচ: ৳৫,৫০০"</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="charts-grid">
+        <!-- Monthly Collections Trend Chart -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              Monthly Deposit Trajectory (2025–2026)
+            </h3>
+            <span style="font-size:0.75rem;color:var(--text-secondary);">Amounts in BDT (৳)</span>
+          </div>
+          <div class="chart-container-wrap">
+            <canvas id="chartMonthlyTrend"></canvas>
+          </div>
+        </div>
+
+        <!-- Member Contribution Share Donut -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+              Contributor Share
+            </h3>
+            <span style="font-size:0.75rem;color:var(--text-secondary);">7 Contributors</span>
+          </div>
+          <div class="chart-container-wrap">
+            <canvas id="chartMemberDistribution"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4-Year Progress Cards Grid -->
+      <h3 style="font-size:1.1rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        Yearly Progress &amp; Milestone Timeline (2025–2028)
+      </h3>
+      <div class="years-summary-grid" id="yearsSummaryGrid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </main>
+
+    <!-- ===============================================================
+         VIEW 2: Master Ledger Table
+         =============================================================== -->
+    <section id="view-ledger" class="view-section">
+      <!-- Table Controls & Filter Bar -->
+      <div class="table-controls-bar">
+        <div class="filter-group">
+          <span style="font-size:0.8rem;color:var(--text-secondary);font-weight:600;margin-right:0.25rem;">Year:</span>
+          <button class="filter-btn-pill active" data-filter-year="all">All Years</button>
+          <button class="filter-btn-pill" data-filter-year="2025">2025 (Paid)</button>
+          <button class="filter-btn-pill" data-filter-year="2026">2026 (Active)</button>
+          <button class="filter-btn-pill" data-filter-year="2027">2027</button>
+          <button class="filter-btn-pill" data-filter-year="2028">2028</button>
+        </div>
+
+        <div class="filter-group">
+          <span style="font-size:0.8rem;color:var(--text-secondary);font-weight:600;margin-right:0.25rem;">Status:</span>
+          <button class="filter-btn-pill active" data-filter-status="all">All Months</button>
+          <button class="filter-btn-pill" data-filter-status="paid">Paid Only</button>
+          <button class="filter-btn-pill" data-filter-status="upcoming">Scheduled Only</button>
+        </div>
+
+        <div class="search-box-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="ledgerSearch" class="search-input" placeholder="Search month, amount, note...">
+        </div>
+      </div>
+
+      <!-- Master Ledger Table Card -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="ledger-table" id="masterLedgerTable">
+            <thead>
+              <tr>
+                <th class="col-sticky-1">Year</th>
+                <th class="col-sticky-2">Month</th>
+                <th>Anower</th>
+                <th style="color:var(--accent-emerald-light);">Salahuddin <small>(DPS Holder)</small></th>
+                <th>Shahadat</th>
+                <th>Mohin</th>
+                <th>Foysal</th>
+                <th>Sumon</th>
+                <th>Rajib</th>
+                <th>Salahuddin &amp; Shahadat</th>
+                <th class="col-total">Docs Total</th>
+                <th style="text-align:center;">Status / Notes</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody">
+              <!-- Rendered dynamically by app.js -->
+            </tbody>
+            <tfoot id="ledgerTableFoot">
+              <!-- Summary rows rendered dynamically by app.js -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===============================================================
+         VIEW 3: Member Profiles & Ledgers
+         =============================================================== -->
+    <section id="view-members" class="view-section">
+      <div style="margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <h2 style="font-size:1.35rem;">Member Profiles &amp; Individual Ledgers</h2>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.2rem;">
+            Individual breakdown of contributions, adjustments, net balances, and DPS allocations for all contributors.
+          </p>
+        </div>
+      </div>
+
+      <div class="members-grid" id="membersGrid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- ===============================================================
+         VIEW 4: Visual Analytics & Trends
+         =============================================================== -->
+    <section id="view-analytics" class="view-section">
+      <div style="margin-bottom:1.25rem;">
+        <h2 style="font-size:1.35rem;">Visual Analytics &amp; Fund Performance</h2>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.2rem;">
+          In-depth financial trajectory, cumulative growth curve, and monthly comparisons.
+        </p>
+      </div>
+
+      <!-- Analytics Charts Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(450px, 1fr));gap:1.5rem;margin-bottom:1.5rem;">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+              Cumulative Fund Growth Curve (BDT)
+            </h3>
+            <span style="font-size:0.75rem;color:var(--text-secondary);">Total Growth</span>
+          </div>
+          <div class="chart-container-wrap" style="min-height:300px;">
+            <canvas id="chartAnalyticsGrowth"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-indigo)" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Month-by-Month Comparison (2025 vs 2026)
+            </h3>
+            <span style="font-size:0.75rem;color:var(--text-secondary);">Installments</span>
+          </div>
+          <div class="chart-container-wrap" style="min-height:300px;">
+            <canvas id="chartAnalyticsMonthly"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Metrics Summary Table -->
+      <div class="table-card" style="padding:1.5rem;">
+        <h3 style="font-size:1.1rem;margin-bottom:1rem;">Key Fund Performance Indicators</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;">
+          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:1rem;">
+            <div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;">Average Monthly Collection</div>
+            <div style="font-size:1.4rem;font-weight:800;font-family:var(--font-mono);color:var(--accent-emerald-light);margin-top:0.3rem;">৳27,268</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">Across active paying months</div>
+          </div>
+
+          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:1rem;">
+            <div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;">Peak Collection Month</div>
+            <div style="font-size:1.4rem;font-weight:800;font-family:var(--font-mono);color:#fbbf24;margin-top:0.3rem;">৳41,630</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">December 2025 (Includes adjustment)</div>
+          </div>
+
+          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:1rem;">
+            <div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;">Installment Completion</div>
+            <div style="font-size:1.4rem;font-weight:800;font-family:var(--font-mono);color:var(--accent-cyan);margin-top:0.3rem;">43.75%</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">21 of 48 months fulfilled</div>
+          </div>
+
+          <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:1rem;">
+            <div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;">Scheduled Remaining</div>
+            <div style="font-size:1.4rem;font-weight:800;font-family:var(--font-mono);color:var(--text-highlight);margin-top:0.3rem;">27 Months</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">Oct 2026 – Dec 2028</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===============================================================
+         VIEW 5: DPS & Growth Calculator
+         =============================================================== -->
+    <section id="view-calculator" class="view-section">
+      <div style="margin-bottom:1.25rem;">
+        <h2 style="font-size:1.35rem;">DPS &amp; Savings Growth Simulator</h2>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.2rem;">
+          Estimate compound growth, bank interest returns, maturity value, and per-member distribution across customizable tenors.
+        </p>
+      </div>
+
+      <div class="calc-grid-layout">
+        <!-- Input Parameters Panel -->
+        <div class="calc-panel">
+          <div class="calc-panel-header">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              Simulation Parameters
+            </h3>
+            <p>Customize monthly deposits, bank profit rate, and horizon</p>
+          </div>
+
+          <!-- Monthly Deposit Amount -->
+          <div class="calc-control-group">
+            <div class="calc-control-label-row">
+              <span>Monthly Total Deposit (৳)</span>
+              <input type="number" id="calcInputAmount" class="calc-control-val-badge" value="27860" step="500" style="border:none;outline:none;width:100px;text-align:right;">
+            </div>
+            <input type="range" id="calcSliderAmount" class="calc-slider-input" min="5000" max="60000" step="500" value="27860">
+          </div>
+
+          <!-- Bank Annual Interest Rate -->
+          <div class="calc-control-group">
+            <div class="calc-control-label-row">
+              <span>Expected Annual Interest / Profit (%)</span>
+              <input type="number" id="calcInputRate" class="calc-control-val-badge" value="8.5" step="0.25" style="border:none;outline:none;width:80px;text-align:right;">
+            </div>
+            <input type="range" id="calcSliderRate" class="calc-slider-input" min="4" max="14" step="0.25" value="8.5">
+          </div>
+
+          <!-- Term / Duration (Years) -->
+          <div class="calc-control-group">
+            <div class="calc-control-label-row">
+              <span>Duration (Years)</span>
+              <input type="number" id="calcInputDuration" class="calc-control-val-badge" value="4" min="1" max="10" step="1" style="border:none;outline:none;width:60px;text-align:right;">
+            </div>
+            <input type="range" id="calcSliderDuration" class="calc-slider-input" min="1" max="10" step="1" value="4">
+          </div>
+
+          <!-- Total Contributors -->
+          <div class="calc-control-group">
+            <div class="calc-control-label-row">
+              <span>Total Equal Contributors</span>
+              <input type="number" id="calcInputMembers" class="calc-control-val-badge" value="7" min="1" max="20" step="1" style="border:none;outline:none;width:60px;text-align:right;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Projected Results Output Panel -->
+        <div class="calc-panel">
+          <div class="calc-panel-header">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+              Projected Maturity Payout
+            </h3>
+            <p>Estimated compound maturity at Mutual Trust Bank</p>
+          </div>
+
+          <div class="calc-results-cards">
+            <div class="calc-result-box featured">
+              <span class="calc-result-label">Total Maturity Value</span>
+              <span class="calc-result-val" id="calcResultMaturity">৳0</span>
+            </div>
+
+            <div class="calc-result-box">
+              <span class="calc-result-label">Principal Deposited</span>
+              <span class="calc-result-val" id="calcResultPrincipal">৳0</span>
+            </div>
+
+            <div class="calc-result-box">
+              <span class="calc-result-label">Bank Interest Profit</span>
+              <span class="calc-result-val" id="calcResultInterest" style="color:var(--accent-emerald-light);">৳0</span>
+            </div>
+
+            <div class="calc-result-box">
+              <span class="calc-result-label">Per Contributor Payout</span>
+              <span class="calc-result-val" id="calcPerMemberPayout" style="color:#818cf8;">৳0</span>
+            </div>
+          </div>
+
+          <!-- Visual Proportion Bar -->
+          <div class="calc-breakdown-wrapper">
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.4rem;font-weight:600;">
+              Composition: Principal vs Bank Interest Profit
+            </div>
+            <div class="calc-bar-container">
+              <div class="calc-bar-part principal" id="calcBarPrincipal" style="width:75%;"></div>
+              <div class="calc-bar-part interest" id="calcBarInterest" style="width:25%;"></div>
+            </div>
+            <div class="calc-bar-legend">
+              <span><span class="calc-legend-dot" style="background:var(--accent-cyan);"></span>Principal Invested</span>
+              <span><span class="calc-legend-dot" style="background:var(--accent-emerald);"></span>Interest Earned</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===============================================================
+         VIEW 6: Live Google Sheet Embed
+         =============================================================== -->
+    <section id="view-embed" class="view-section">
+      <div class="embed-container-card" id="sheetEmbedCard">
+        <div class="embed-toolbar">
+          <div class="embed-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Google Sheets Live Spreadsheet (Official Publication)</span>
+          </div>
+
+          <div class="embed-actions">
+            <button class="btn btn-secondary" onclick="reloadSheetFrame()" title="Reload the embedded Google Sheet">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Reload
+            </button>
+
+            <button class="btn btn-secondary" onclick="toggleSheetFullscreen()" title="Toggle full-window view">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+              Fullscreen
+            </button>
+
+            <a class="btn btn-secondary" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQluOdLTn0bbrTbu6U31pwihR5KyabbgK3SqlxAEEERQKd0ZE9_svak3TAB59euaMAqhmrCbWvw3rBD/pub?output=xlsx" download title="Download Official Excel File">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download XLSX
+            </a>
+
+            <a class="btn btn-secondary" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQluOdLTn0bbrTbu6U31pwihR5KyabbgK3SqlxAEEERQKd0ZE9_svak3TAB59euaMAqhmrCbWvw3rBD/pub?output=csv" download title="Download CSV Data">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              Download CSV
+            </a>
+
+            <a class="btn btn-primary" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQluOdLTn0bbrTbu6U31pwihR5KyabbgK3SqlxAEEERQKd0ZE9_svak3TAB59euaMAqhmrCbWvw3rBD/pubhtml" target="_blank" rel="noopener noreferrer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Open Published Sheet
+            </a>
+          </div>
+        </div>
+
+        <div class="embed-frame-wrapper">
+          <iframe 
+            id="googleSheetFrame"
+            class="embed-frame"
+            src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQluOdLTn0bbrTbu6U31pwihR5KyabbgK3SqlxAEEERQKd0ZE9_svak3TAB59euaMAqhmrCbWvw3rBD/pubhtml?widget=true&amp;headers=false"
+            loading="lazy"
+            title="Mission Infinity Google Sheet Live Publication">
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===============================================================
+         Footer
+         =============================================================== -->
+    <footer class="site-footer">
+      <div class="footer-left">
+        <strong>Mission Infinity</strong>
+        <span>•</span>
+        <span>Mutual Trust Bank Limited • Kadair Bazar Branch</span>
+      </div>
+      <div>
+        <span>DPS Number: <strong>1308010659554</strong></span>
+        <span>•</span>
+        <span>Account Holder: <strong>SALAHUDDIN</strong></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- =================================================================
+       Modal: Member Individual Statement
+       ================================================================= -->
+  <div id="memberModal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="memberModalTitle">Member Statement</h3>
+        <button class="modal-close-btn" onclick="closeModal('memberModal')" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body" id="memberModalBody">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('memberModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================
+       Modal: Note Details
+       ================================================================= -->
+  <div id="noteModal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-dialog" style="max-width:520px;">
+      <div class="modal-header">
+        <h3 id="noteModalTitle">Special Ledger Notice</h3>
+        <button class="modal-close-btn" onclick="closeModal('noteModal')" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body" id="noteModalContent">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="closeModal('noteModal')">Understood</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================
+       Core Data & Application Scripts
+       ================================================================= -->
+  <!-- 1. Offline Initial Data Cache (Immediate Zero-Latency Render) -->
+  <script src="js/initial-data.js"></script>
+
+  <!-- 2. Application Engine & Real-Time Google Sheets Live Sync -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>
