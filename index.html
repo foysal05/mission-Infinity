@@ -7,10 +7,10 @@
   <meta name="description" content="Mission Infinity — Interactive financial ledger and DPS contribution tracking portal for Mutual Trust Bank (Kadair Bazar Branch). Real-time member ledgers, analytics, and projections.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♾️</text></svg>">
 
-  <!-- Google Fonts: Outfit (Headings), Inter (Body), JetBrains Mono (Financial Data) -->
+  <!-- Google Fonts: Outfit (Headings), Plus Jakarta Sans / Inter (Body), Hind Siliguri (Bengali), JetBrains Mono (Financial Data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Application Stylesheet -->
   <link rel="stylesheet" href="css/styles.css">
@@ -128,38 +128,41 @@
          Navigation Tabs
          =============================================================== -->
     <nav class="nav-tabs-wrapper" aria-label="Main Navigation">
-      <div class="nav-tabs">
-        <button class="nav-tab-btn active" data-tab="dashboard">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          Executive Overview
-        </button>
+      <div class="nav-tabs-container">
+        <div class="nav-tabs" role="tablist">
+          <button class="nav-tab-btn active" data-tab="dashboard" role="tab" aria-selected="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Overview</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="ledger">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          Master Ledger Table
-          <span class="tab-badge">48 Mos</span>
-        </button>
+          <button class="nav-tab-btn" data-tab="ledger" role="tab" aria-selected="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Master Ledger</span>
+            <span class="tab-badge">48 Mos</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="members">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          Member Profiles &amp; Ledgers
-          <span class="tab-badge">7</span>
-        </button>
+          <button class="nav-tab-btn" data-tab="members" role="tab" aria-selected="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Members</span>
+            <span class="tab-badge">7</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="analytics">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-          Visual Analytics &amp; Trends
-        </button>
+          <button class="nav-tab-btn" data-tab="analytics" role="tab" aria-selected="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Analytics</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="calculator">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg>
-          DPS &amp; Growth Calculator
-        </button>
+          <button class="nav-tab-btn" data-tab="calculator" role="tab" aria-selected="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg>
+            <span>Growth Simulator</span>
+          </button>
 
-        <button class="nav-tab-btn" data-tab="embed">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          Live Google Sheet
-        </button>
+          <button class="nav-tab-btn nav-tab-live" data-tab="embed" role="tab" aria-selected="false" title="View official live Google Sheet">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <span>Live Sheet</span>
+            <span class="tab-live-badge"><span class="live-dot-ping"></span>LIVE</span>
+          </button>
+        </div>
       </div>
     </nav>
 
@@ -181,7 +184,8 @@
             <span class="currency-symbol">৳</span>572,631
           </div>
           <div class="kpi-subtext">
-            <span>Verified across 21 active installments</span>
+            <span class="kpi-chip">21 of 48 Active Mos</span>
+            <span>All members verified</span>
           </div>
         </div>
 
@@ -197,7 +201,8 @@
             <span class="currency-symbol">৳</span>534,681
           </div>
           <div class="kpi-subtext">
-            <span>Equalized ৳76,383 per active member</span>
+            <span class="kpi-chip chip-indigo">৳76,383 / Member</span>
+            <span>Equalized across 7 members</span>
           </div>
         </div>
 
@@ -213,7 +218,8 @@
             <span class="currency-symbol">৳</span>120,001
           </div>
           <div class="kpi-subtext">
-            <span>৳17,143 committed per member</span>
+            <span class="kpi-chip chip-cyan">৳17,143 Committed</span>
+            <span>Contingency reserve</span>
           </div>
         </div>
 
@@ -229,29 +235,86 @@
             <span class="currency-symbol">৳</span>32,450
           </div>
           <div class="kpi-subtext">
-            <span>Distributed (৳6,325 × 6 members)</span>
+            <span class="kpi-chip chip-amber">৳6,325 × 6 Members</span>
+            <span>Sumon exempt</span>
           </div>
         </div>
       </div>
 
-      <!-- Important Notices Callout -->
-      <div class="notice-card">
-        <div class="notice-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <!-- Special Financial Protocol & Official Audit Callout -->
+      <section class="protocol-audit-card" aria-label="Special Financial Notices">
+        <div class="protocol-header">
+          <div class="protocol-title-wrap">
+            <div class="protocol-icon-badge">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M12 8v4"/>
+                <path d="M12 16h.01"/>
+              </svg>
+            </div>
+            <div>
+              <div class="protocol-title-row">
+                <h3 class="protocol-title">Special Financial Notices &amp; Fund Audits</h3>
+                <span class="protocol-status-tag">
+                  <span class="status-pulse-dot"></span>
+                  Official Ledger Audit
+                </span>
+              </div>
+              <p class="protocol-subtitle">Verified adjustments and allocations recorded directly within the committee's master ledger</p>
+            </div>
+          </div>
         </div>
-        <div class="notice-content">
-          <h4>Special Financial Notices &amp; Fund Audits</h4>
-          <p>
-            Official ledger notation for <strong>December 2025</strong>:
-            <br>
-            <span class="bengali-text">"রুবেল &amp; জিয়ার টাকা সবার মধ্যে 1980/= করে ভাগ করে দেওয়া হলো."</span>
-            <br>
-            Official allocation notice for <strong>Iftar 2026</strong>:
-            <br>
-            <span class="bengali-text" style="color:#86efac;background:rgba(16,185,129,0.12);">"ইফতার ২০২৬, আমাদের তহবিল থেকে খরচ: ৳৫,৫০০"</span>
-          </p>
+
+        <div class="protocol-grid">
+          <!-- Item 1: Dec 2025 Equalization -->
+          <div class="protocol-box dec-protocol">
+            <div class="protocol-box-top">
+              <span class="protocol-period-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                December 2025 Reconciliation
+              </span>
+              <span class="protocol-metric-badge amber-badge">
+                +৳1,980 / Member
+              </span>
+            </div>
+
+            <div class="protocol-quote-container">
+              <span class="quote-mark">“</span>
+              <p class="bengali-statement-text">
+                রুবেল &amp; জিয়ার টাকা সবার মধ্যে 1980/= করে ভাগ করে দেওয়া হলো.
+              </p>
+            </div>
+
+            <p class="protocol-explanation">
+              <strong>Equal Surplus Redistribution:</strong> Funds from Rubel &amp; Zia were distributed equally among all active contributors (+৳1,980 each), bringing each member's December deposit to <strong>৳5,965</strong> (Sumon ৳5,840) and totaling <strong>৳41,630</strong> for the month.
+            </p>
+          </div>
+
+          <!-- Item 2: Iftar 2026 Expense -->
+          <div class="protocol-box iftar-protocol">
+            <div class="protocol-box-top">
+              <span class="protocol-period-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                Ramadan 2026 Community Allocation
+              </span>
+              <span class="protocol-metric-badge emerald-badge">
+                ৳5,500 Disbursed
+              </span>
+            </div>
+
+            <div class="protocol-quote-container emerald-quote">
+              <span class="quote-mark">“</span>
+              <p class="bengali-statement-text">
+                ইফতার ২০২৬, আমাদের তহবিল থেকে খরচ: ৳৫,৫০০
+              </p>
+            </div>
+
+            <p class="protocol-explanation">
+              <strong>Community Fund Allocation:</strong> An authorized expense of <strong>৳5,500</strong> was disbursed from the Mission Infinity collective fund pool to sponsor the communal 2026 Ramadan Iftar gathering.
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
 
       <!-- Charts Grid -->
       <div class="charts-grid">
@@ -331,7 +394,7 @@
                 <th class="col-sticky-1">Year</th>
                 <th class="col-sticky-2">Month</th>
                 <th>Anower</th>
-                <th style="color:var(--accent-emerald-light);">Salahuddin <small>(DPS Holder)</small></th>
+                <th>Salahuddin</th>
                 <th>Shahadat</th>
                 <th>Mohin</th>
                 <th>Foysal</th>

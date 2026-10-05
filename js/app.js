@@ -554,11 +554,11 @@
             borderColor: '#10b981',
             backgroundColor: isDark ? 'rgba(16, 185, 129, 0.12)' : 'rgba(16, 185, 129, 0.15)',
             borderWidth: 2.5,
-            pointBackgroundColor: '#10b981',
+            pointBackgroundColor: (ctx) => (ctx.dataIndex === 11 ? '#f59e0b' : '#10b981'),
             pointBorderColor: isDark ? '#090d16' : '#ffffff',
             pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            pointRadius: (ctx) => (ctx.dataIndex === 11 ? 7 : 4),
+            pointHoverRadius: 8,
             tension: 0.35,
             fill: true
           }]
@@ -571,7 +571,8 @@
             tooltip: {
               callbacks: {
                 label: function (ctx) {
-                  return ` Total: ৳${Number(ctx.raw).toLocaleString('en-IN')}`;
+                  const prefix = ctx.dataIndex === 11 ? ' ⭐ Dec \'25 Reconciled: ' : ' Total: ';
+                  return `${prefix}৳${Number(ctx.raw).toLocaleString('en-IN')}`;
                 }
               }
             }
