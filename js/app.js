@@ -1299,12 +1299,14 @@
     const totalInterest = Math.max(0, maturityValue - totalPrincipal);
     const perMemberPrincipal = totalPrincipal / members;
     const perMemberMaturity = maturityValue / members;
+    const perMemberProfit = totalInterest / members;
 
     const elPrincipal = document.getElementById('calcResultPrincipal');
     const elInterest = document.getElementById('calcResultInterest');
     const elMaturity = document.getElementById('calcResultMaturity');
     const elPerMemberPrincipal = document.getElementById('calcPerMemberPrincipal');
     const elPerMemberPayout = document.getElementById('calcPerMemberPayout');
+    const elPerMemberProfit = document.getElementById('calcPerMemberProfit');
     const elBarPrincipal = document.getElementById('calcBarPrincipal');
     const elBarInterest = document.getElementById('calcBarInterest');
 
@@ -1313,6 +1315,7 @@
     if (elMaturity) elMaturity.textContent = formatCurrency(maturityValue);
     if (elPerMemberPrincipal) elPerMemberPrincipal.textContent = formatCurrency(perMemberPrincipal);
     if (elPerMemberPayout) elPerMemberPayout.textContent = formatCurrency(perMemberMaturity);
+    if (elPerMemberProfit) elPerMemberProfit.textContent = formatCurrency(perMemberProfit);
 
     if (elBarPrincipal && elBarInterest) {
       const principalPct = Math.round((totalPrincipal / maturityValue) * 100);

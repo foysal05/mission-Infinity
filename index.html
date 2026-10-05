@@ -509,105 +509,185 @@
          VIEW 5: DPS & Growth Calculator
          =============================================================== -->
     <section id="view-calculator" class="view-section">
-      <div style="margin-bottom:1.25rem;">
-        <h2 style="font-size:1.35rem;">DPS &amp; Savings Growth Simulator</h2>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.2rem;">
-          Estimate compound growth, bank interest returns, maturity value, and per-member distribution across customizable tenors.
-        </p>
+      <div class="section-title-wrap">
+        <div class="section-title-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+            <line x1="8" y1="6" x2="16" y2="6"></line>
+            <line x1="16" y1="14" x2="16" y2="18"></line>
+            <path d="M8 10h.01"></path><path d="M12 10h.01"></path><path d="M16 10h.01"></path>
+            <path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path>
+          </svg>
+        </div>
+        <div>
+          <h2>DPS &amp; Savings Growth Simulator</h2>
+          <p>
+            Estimate compound wealth growth, Mutual Trust Bank profit yields, maturity value, and per-contributor payout across customizable durations.
+          </p>
+        </div>
       </div>
 
       <div class="calc-grid-layout">
         <!-- Input Parameters Panel -->
-        <div class="calc-panel">
+        <div class="calc-panel calc-config-panel">
           <div class="calc-panel-header">
-            <h3>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-              Simulation Parameters
-            </h3>
-            <p>Customize monthly deposits, bank profit rate, and horizon</p>
+            <div class="calc-header-title-row">
+              <div class="calc-panel-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              </div>
+              <div>
+                <h3>Simulation Parameters</h3>
+                <p>Customize monthly deposits, bank profit rate, and horizon</p>
+              </div>
+            </div>
           </div>
 
           <!-- Monthly Deposit Amount -->
           <div class="calc-control-group">
             <div class="calc-control-label-row">
-              <span>Monthly Total Deposit (৳)</span>
-              <input type="number" id="calcInputAmount" class="calc-control-val-badge" value="27860" step="500" style="border:none;outline:none;width:100px;text-align:right;">
+              <label for="calcInputAmount" class="calc-label">Monthly Total Deposit</label>
+              <div class="calc-input-pill">
+                <span class="currency-tag">৳</span>
+                <input type="number" id="calcInputAmount" class="calc-control-val-badge" value="27860" step="500">
+              </div>
             </div>
-            <input type="range" id="calcSliderAmount" class="calc-slider-input" min="5000" max="60000" step="500" value="27860">
+            <div class="calc-slider-wrap">
+              <input type="range" id="calcSliderAmount" class="calc-slider-input" min="5000" max="60000" step="500" value="27860">
+              <div class="calc-slider-bounds">
+                <span>Min: ৳5,000</span>
+                <span>Current: ৳27,860</span>
+                <span>Max: ৳60,000</span>
+              </div>
+            </div>
           </div>
 
           <!-- Bank Annual Interest Rate -->
           <div class="calc-control-group">
             <div class="calc-control-label-row">
-              <span>Expected Annual Interest / Profit (%)</span>
-              <input type="number" id="calcInputRate" class="calc-control-val-badge" value="8.5" step="0.25" style="border:none;outline:none;width:80px;text-align:right;">
+              <label for="calcInputRate" class="calc-label">Expected Annual Profit / Rate</label>
+              <div class="calc-input-pill">
+                <input type="number" id="calcInputRate" class="calc-control-val-badge" value="8.5" step="0.25">
+                <span class="percent-tag">%</span>
+              </div>
             </div>
-            <input type="range" id="calcSliderRate" class="calc-slider-input" min="4" max="14" step="0.25" value="8.5">
+            <div class="calc-slider-wrap">
+              <input type="range" id="calcSliderRate" class="calc-slider-input" min="4" max="15" step="0.25" value="8.5">
+              <div class="calc-slider-bounds">
+                <span>4.0% (Conserv.)</span>
+                <span>8.5% (MTB Standard)</span>
+                <span>15.0%</span>
+              </div>
+            </div>
           </div>
 
           <!-- Term / Duration (Years) -->
           <div class="calc-control-group">
             <div class="calc-control-label-row">
-              <span>Duration (Years)</span>
-              <input type="number" id="calcInputDuration" class="calc-control-val-badge" value="4" min="1" max="10" step="1" style="border:none;outline:none;width:60px;text-align:right;">
+              <label for="calcInputDuration" class="calc-label">Duration / Horizon</label>
+              <div class="calc-input-pill">
+                <input type="number" id="calcInputDuration" class="calc-control-val-badge" value="4" min="1" max="10" step="1">
+                <span class="unit-tag">Years</span>
+              </div>
             </div>
-            <input type="range" id="calcSliderDuration" class="calc-slider-input" min="1" max="10" step="1" value="4">
+            <div class="calc-slider-wrap">
+              <input type="range" id="calcSliderDuration" class="calc-slider-input" min="1" max="10" step="1" value="4">
+              <div class="calc-slider-bounds">
+                <span>1 Year</span>
+                <span>4 Years (Official Term)</span>
+                <span>10 Years</span>
+              </div>
+            </div>
           </div>
 
           <!-- Total Contributors -->
           <div class="calc-control-group">
             <div class="calc-control-label-row">
-              <span>Total Equal Contributors</span>
-              <input type="number" id="calcInputMembers" class="calc-control-val-badge" value="7" min="1" max="20" step="1" style="border:none;outline:none;width:60px;text-align:right;">
+              <label for="calcInputMembers" class="calc-label">Equal Contributors</label>
+              <div class="calc-input-pill">
+                <input type="number" id="calcInputMembers" class="calc-control-val-badge" value="7" min="1" max="20" step="1">
+                <span class="unit-tag">Members</span>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Projected Results Output Panel -->
-        <div class="calc-panel">
+        <div class="calc-panel calc-results-panel">
           <div class="calc-panel-header">
-            <h3>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-              Projected Maturity Payout
-            </h3>
-            <p>Estimated compound maturity at Mutual Trust Bank</p>
+            <div class="calc-header-title-row">
+              <div class="calc-panel-icon icon-cyan">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+              </div>
+              <div>
+                <h3>Projected Maturity Payout</h3>
+                <p>Estimated compound maturity at Mutual Trust Bank</p>
+              </div>
+            </div>
+            <span class="calc-status-badge">Compound DPS</span>
           </div>
 
-          <div class="calc-results-cards">
-            <div class="calc-result-box featured">
-              <span class="calc-result-label">Total Maturity Value</span>
-              <span class="calc-result-val" id="calcResultMaturity">৳0</span>
+          <!-- Featured Hero Card -->
+          <div class="calc-hero-card">
+            <div class="calc-hero-label">Total Projected Maturity Payout</div>
+            <div class="calc-hero-val" id="calcResultMaturity">৳0</div>
+            <div class="calc-hero-chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+              <span>Mutual Trust Bank Maturity Estimate</span>
             </div>
+          </div>
 
+          <!-- Sub Results Grid -->
+          <div class="calc-results-cards">
             <div class="calc-result-box">
               <span class="calc-result-label">Principal Deposited</span>
-              <span class="calc-result-val" id="calcResultPrincipal">৳0</span>
+              <span class="calc-result-val text-cyan" id="calcResultPrincipal">৳0</span>
+              <span class="calc-result-sub">Total pool investment</span>
             </div>
 
             <div class="calc-result-box">
               <span class="calc-result-label">Bank Interest Profit</span>
-              <span class="calc-result-val" id="calcResultInterest" style="color:var(--accent-emerald-light);">৳0</span>
+              <span class="calc-result-val text-emerald" id="calcResultInterest">৳0</span>
+              <span class="calc-result-sub">Compounded interest yield</span>
             </div>
 
             <div class="calc-result-box">
-              <span class="calc-result-label">Per Contributor Payout</span>
-              <span class="calc-result-val" id="calcPerMemberPayout" style="color:#818cf8;">৳0</span>
+              <span class="calc-result-label">Per Member Total Payout</span>
+              <span class="calc-result-val text-indigo" id="calcPerMemberPayout">৳0</span>
+              <span class="calc-result-sub">Maturity share / contributor</span>
+            </div>
+
+            <div class="calc-result-box">
+              <span class="calc-result-label">Per Member Net Profit</span>
+              <span class="calc-result-val text-amber" id="calcPerMemberProfit">৳0</span>
+              <span class="calc-result-sub">Net profit gain / contributor</span>
             </div>
           </div>
 
           <!-- Visual Proportion Bar -->
           <div class="calc-breakdown-wrapper">
-            <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.4rem;font-weight:600;">
-              Composition: Principal vs Bank Interest Profit
+            <div class="calc-breakdown-label">
+              <span>Fund Composition: Principal vs Interest Profit</span>
             </div>
             <div class="calc-bar-container">
               <div class="calc-bar-part principal" id="calcBarPrincipal" style="width:75%;"></div>
               <div class="calc-bar-part interest" id="calcBarInterest" style="width:25%;"></div>
             </div>
             <div class="calc-bar-legend">
-              <span><span class="calc-legend-dot" style="background:var(--accent-cyan);"></span>Principal Invested</span>
-              <span><span class="calc-legend-dot" style="background:var(--accent-emerald);"></span>Interest Earned</span>
+              <div class="legend-item">
+                <span class="calc-legend-dot dot-cyan"></span>
+                <span>Principal Invested</span>
+              </div>
+              <div class="legend-item">
+                <span class="calc-legend-dot dot-emerald"></span>
+                <span>Interest Earned</span>
+              </div>
             </div>
+          </div>
+
+          <!-- Policy Note -->
+          <div class="calc-disclaimer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Calculations assume monthly compounding under Mutual Trust Bank standard DPS tenure. Subject to prevailing bank excise taxes &amp; regulatory AIT.</span>
           </div>
         </div>
       </div>
