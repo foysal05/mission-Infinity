@@ -114,7 +114,7 @@
           </div>
           <div class="meta-item">
             <span>DPS Holder:</span>
-            <strong>SALAHUDDIN & SHAHADAT</strong>
+            <strong>SALAHUDDIN & SHAHADAT HOSSAIN</strong>
           </div>
         </div>
 
@@ -379,6 +379,11 @@
           <button class="filter-btn-pill" data-filter-status="upcoming">Scheduled Only</button>
         </div>
 
+        <button class="btn-focus-current" id="btnJumpCurrentMonth" onclick="jumpToCurrentMonth()" title="Focus and scroll to Current Month in the table">
+          <span class="focus-pulse-dot"></span>
+          <span>Current Month (Oct '26)</span>
+        </button>
+
         <div class="search-box-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" id="ledgerSearch" class="search-input" placeholder="Search month, amount, note...">
@@ -389,19 +394,19 @@
       <div class="table-card">
         <div class="table-responsive">
           <table class="ledger-table" id="masterLedgerTable">
-            <thead>
+            <thead id="ledgerTableHead">
               <tr>
                 <th class="col-sticky-1">Year</th>
                 <th class="col-sticky-2">Month</th>
-                <th>Anower</th>
-                <th>Salahuddin</th>
-                <th>Shahadat</th>
-                <th>Mohin</th>
-                <th>Foysal</th>
-                <th>Sumon</th>
-                <th>Rajib</th>
+                <th class="col-member">Anower</th>
+                <th class="col-member">Salahuddin <span class="dps-holder-pill" title="DPS Account Holder">DPS</span></th>
+                <th class="col-member">Shahadat</th>
+                <th class="col-member">Mohin</th>
+                <th class="col-member">Foysal</th>
+                <th class="col-member">Sumon</th>
+                <th class="col-member">Rajib</th>
                 <th class="col-total">Docs Total</th>
-                <th style="text-align:center;">Status / Notes</th>
+                <th class="col-status">Status / Notes</th>
               </tr>
             </thead>
             <tbody id="ledgerTableBody">
@@ -755,7 +760,7 @@
       <div>
         <span>DPS Number: <strong>1308010659554</strong></span>
         <span>•</span>
-        <span>Account Holder: <strong>SALAHUDDIN</strong></span>
+        <span>Account Holder: <strong>SALAHUDDIN & SHAHADAT HOSSAIN</strong></span>
       </div>
     </footer>
 

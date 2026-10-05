@@ -87,7 +87,7 @@
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    
+
     let iconSvg = '';
     if (type === 'success') {
       iconSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
@@ -230,7 +230,7 @@
         branch: 'Kadair Bazar',
         accountNumber: '1311002535350',
         dpsNumber: '1308010659554',
-        dpsHolder: 'SALAHUDDIN'
+        dpsHolder: 'SALAHUDDIN & SHAHADAT HOSSAIN'
       },
       members: members,
       records: records,
@@ -710,6 +710,72 @@
     });
   }
 
+  function getCurrentMonthInfo() {
+    const now = new Date();
+    const currentYear = String(now.getFullYear());
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const currentMonthName = monthNames[now.getMonth()];
+    return { year: currentYear, month: currentMonthName };
+  }
+
+  function focusCurrentMonth(smooth = true) {
+    const currentMonthRow = document.getElementById('currentMonthRow');
+    const tableContainer = document.querySelector('.table-responsive');
+    if (!currentMonthRow || !tableContainer) return;
+
+    if (tableContainer.clientHeight === 0) return;
+
+    const containerRect = tableContainer.getBoundingClientRect();
+    const rowRect = currentMonthRow.getBoundingClientRect();
+
+    const offsetFromContainerTop = rowRect.top - containerRect.top;
+    const targetScrollTop = tableContainer.scrollTop + offsetFromContainerTop - (tableContainer.clientHeight / 2) + (rowRect.height / 2);
+
+    tableContainer.scrollTo({
+      top: Math.max(0, targetScrollTop),
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+
+    currentMonthRow.classList.remove('highlight-pulse');
+    void currentMonthRow.offsetWidth;
+    currentMonthRow.classList.add('highlight-pulse');
+  }
+
+  window.focusCurrentMonth = focusCurrentMonth;
+
+  window.jumpToCurrentMonth = function () {
+    const currentInfo = getCurrentMonthInfo();
+    if (state.activeTab !== 'ledger') {
+      switchTab('ledger');
+    }
+    let filtersReset = false;
+    if (state.yearFilter !== 'all' && state.yearFilter !== currentInfo.year) {
+      state.yearFilter = 'all';
+      filtersReset = true;
+    }
+    if (state.statusFilter !== 'all') {
+      state.statusFilter = 'all';
+      filtersReset = true;
+    }
+    if (state.searchQuery) {
+      state.searchQuery = '';
+      const sInput = document.getElementById('ledgerSearch');
+      if (sInput) sInput.value = '';
+      filtersReset = true;
+    }
+    if (filtersReset) {
+      updateFilterButtons();
+      renderMasterLedgerTable();
+    }
+    setTimeout(() => {
+      focusCurrentMonth(true);
+      showToast(`Focused on Current Month: ${currentInfo.month} ${currentInfo.year}`, 'success');
+    }, 60);
+  };
+
   function renderMasterLedgerTable() {
     const data = state.data;
     const tbody = document.getElementById('ledgerTableBody');
@@ -717,6 +783,7 @@
     if (!tbody || !data) return;
 
     const members = data.members;
+    const currentInfo = getCurrentMonthInfo();
 
     const filteredRecords = data.records.filter(r => {
       if (state.yearFilter !== 'all' && r.year !== state.yearFilter) return false;
@@ -729,7 +796,7 @@
         const matchesYear = r.year.toLowerCase().includes(query);
         const matchesNote = r.note && r.note.toLowerCase().includes(query);
         const matchesTotal = String(r.total).includes(query);
-        
+
         let matchesMemberAmount = false;
         for (const mId in r.payments) {
           if (r.payments[mId] !== null && String(r.payments[mId]).includes(query)) {
@@ -762,7 +829,8 @@
     let rowsHtml = '';
     filteredRecords.forEach((r) => {
       const isPaid = r.isPaid;
-      
+      const isCurrentMonth = (r.year === currentInfo.year && r.month.toLowerCase() === currentInfo.month.toLowerCase());
+
       let noteCellHtml = '—';
       if (r.note) {
         noteCellHtml = `
@@ -771,6 +839,12 @@
             Notice
           </button>
         `;
+      } else if (isCurrentMonth) {
+        if (isPaid) {
+          noteCellHtml = '<span class="status-current-badge paid"><span class="pulse-dot"></span> Paid (Current)</span>';
+        } else {
+          noteCellHtml = '<span class="status-current-badge active"><span class="pulse-dot-amber"></span> Current Due</span>';
+        }
       } else if (isPaid) {
         noteCellHtml = '<span style="color:var(--accent-emerald);font-size:0.75rem;font-weight:600;">✓ Paid</span>';
       } else {
@@ -787,10 +861,17 @@
         }
       });
 
+      const monthLabelHtml = isCurrentMonth ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.35rem;">
+          <span style="font-weight:800;letter-spacing:0.02em;">${r.month}</span>
+          <span class="badge-current-month" title="Current Active Month"><span class="pulse-dot"></span> CURRENT</span>
+        </div>
+      ` : r.month;
+
       rowsHtml += `
-        <tr>
+        <tr ${isCurrentMonth ? 'id="currentMonthRow" class="row-current-month" data-current-month="true"' : ''}>
           <td class="col-sticky-1">${r.year}</td>
-          <td class="col-sticky-2">${r.month}</td>
+          <td class="col-sticky-2">${monthLabelHtml}</td>
           ${memberCellsHtml}
           <td class="cell-total">${r.total > 0 ? formatNumber(r.total) : '0'}</td>
           <td style="text-align:center;">${noteCellHtml}</td>
@@ -799,6 +880,25 @@
     });
 
     tbody.innerHTML = rowsHtml;
+
+    const thead = document.getElementById('ledgerTableHead');
+    if (thead) {
+      let memberThs = '';
+      members.forEach(m => {
+        const isHolder = m.id === 'salahuddin';
+        const badge = isHolder ? ' <span class="dps-holder-pill" title="DPS Account Holder">DPS</span>' : '';
+        memberThs += `<th class="col-member">${escapeHtml(m.name)}${badge}</th>`;
+      });
+      thead.innerHTML = `
+        <tr>
+          <th class="col-sticky-1">Year</th>
+          <th class="col-sticky-2">Month</th>
+          ${memberThs}
+          <th class="col-total">Docs Total</th>
+          <th class="col-status">Status / Notes</th>
+        </tr>
+      `;
+    }
 
     if (tfoot) {
       const summary = data.summary;
@@ -821,31 +921,52 @@
 
       tfoot.innerHTML = `
         <tr class="row-grand-total">
-          <td class="col-sticky-1" colspan="2" style="font-weight:800;letter-spacing:0.02em;">GRAND TOTAL DEPOSITED</td>
+          <td class="col-sticky-1"><span class="badge-tfoot gt">TOTAL</span></td>
+          <td class="col-sticky-2">
+            <div style="font-weight:800;line-height:1.2;">Deposited</div>
+            <div style="font-size:0.7rem;font-weight:600;opacity:0.85;">মোট জমা</div>
+          </td>
           ${gtCells}
           <td class="cell-total" style="font-size:0.95rem;">${formatNumber(gt.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;color:var(--accent-emerald-light);">Verified</td>
+          <td style="text-align:center;font-size:0.75rem;font-weight:600;">✓ Verified</td>
         </tr>
         <tr class="row-adjustment">
-          <td class="col-sticky-1" colspan="2" style="font-weight:700;">IFTER DONATION (ইফতার অনুদান)</td>
+          <td class="col-sticky-1"><span class="badge-tfoot adj">IFTER</span></td>
+          <td class="col-sticky-2">
+            <div style="font-weight:700;line-height:1.2;">Donation</div>
+            <div style="font-size:0.7rem;font-weight:600;opacity:0.85;">ইফতার অনুদান</div>
+          </td>
           ${adjCells}
-          <td class="cell-total" style="color:#fbbf24;">${formatNumber(adj.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;color:#fbbf24;">Rubel &amp; Zia</td>
+          <td class="cell-total">${formatNumber(adj.docsTotal)}</td>
+          <td style="text-align:center;font-size:0.75rem;font-weight:600;">Rubel &amp; Zia</td>
         </tr>
         <tr class="row-net">
-          <td class="col-sticky-1" colspan="2" style="font-weight:800;color:#818cf8;">DPS NET AMOUNT (মূল ডিপিএস তহবিল)</td>
+          <td class="col-sticky-1"><span class="badge-tfoot net">DPS NET</span></td>
+          <td class="col-sticky-2">
+            <div style="font-weight:800;line-height:1.2;">Net Fund</div>
+            <div style="font-size:0.7rem;font-weight:600;opacity:0.85;">মূল ডিপিএস তহবিল</div>
+          </td>
           ${netCells}
-          <td class="cell-total" style="color:#818cf8;">${formatNumber(net.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;color:#818cf8;">Equal Share</td>
+          <td class="cell-total">${formatNumber(net.docsTotal)}</td>
+          <td style="text-align:center;font-size:0.75rem;font-weight:600;">Equal Share</td>
         </tr>
         <tr class="row-dps">
-          <td class="col-sticky-1" colspan="2" style="font-weight:800;color:#38bdf8;">EXTRA ALLOCATION (অতিরিক্ত বরাদ্দ)</td>
+          <td class="col-sticky-1"><span class="badge-tfoot dps">EXTRA</span></td>
+          <td class="col-sticky-2">
+            <div style="font-weight:800;line-height:1.2;">Allocation</div>
+            <div style="font-size:0.7rem;font-weight:600;opacity:0.85;">অতিরিক্ত বরাদ্দ</div>
+          </td>
           ${dpsCells}
-          <td class="cell-total" style="color:#38bdf8;">${formatNumber(dps.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;color:#38bdf8;">Mutual Trust Bank</td>
+          <td class="cell-total">${formatNumber(dps.docsTotal)}</td>
+          <td style="text-align:center;font-size:0.75rem;font-weight:600;">Mutual Trust Bank</td>
         </tr>
       `;
     }
+
+    // Always auto-scroll and focus to current month row if available
+    setTimeout(() => {
+      focusCurrentMonth(false);
+    }, 50);
   }
 
   // ===================================================================
@@ -1170,7 +1291,7 @@
 
       const activeRecords = data.records.filter(r => r.year === '2025' || (r.year === '2026' && r.isPaid));
       const labels = activeRecords.map(r => `${r.month.substring(0, 3)} '${r.year.substring(2)}`);
-      
+
       let cumulative = 0;
       const cumulativeData = activeRecords.map(r => {
         cumulative += (r.total || 0);
