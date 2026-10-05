@@ -841,14 +841,14 @@
         `;
       } else if (isCurrentMonth) {
         if (isPaid) {
-          noteCellHtml = '<span class="status-current-badge paid"><span class="pulse-dot"></span> Paid (Current)</span>';
+          noteCellHtml = '<span class="status-pill status-paid-current"><span class="pulse-dot"></span> Paid (Current)</span>';
         } else {
-          noteCellHtml = '<span class="status-current-badge active"><span class="pulse-dot-amber"></span> Current Due</span>';
+          noteCellHtml = '<span class="status-pill status-current-due"><span class="pulse-dot-amber"></span> Current Due</span>';
         }
       } else if (isPaid) {
-        noteCellHtml = '<span style="color:var(--accent-emerald);font-size:0.75rem;font-weight:600;">✓ Paid</span>';
+        noteCellHtml = '<span class="status-pill status-paid"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Paid</span>';
       } else {
-        noteCellHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">Scheduled</span>';
+        noteCellHtml = '<span class="status-pill status-scheduled">Scheduled</span>';
       }
 
       let memberCellsHtml = '';
@@ -857,7 +857,7 @@
         if (val !== null && val > 0) {
           memberCellsHtml += `<td class="cell-amount paid">${formatNumber(val)}</td>`;
         } else {
-          memberCellsHtml += `<td class="cell-amount empty">—</td>`;
+          memberCellsHtml += `<td class="cell-amount empty"><span class="empty-dash">—</span></td>`;
         }
       });
 
@@ -868,12 +868,15 @@
         </div>
       ` : r.month;
 
+      const totalVal = r.total > 0 ? formatNumber(r.total) : (isCurrentMonth ? '<span class="empty-dash">—</span>' : '<span class="empty-dash">0</span>');
+      const totalCellClass = r.total > 0 ? 'cell-total' : 'cell-total is-zero';
+
       rowsHtml += `
         <tr ${isCurrentMonth ? 'id="currentMonthRow" class="row-current-month" data-current-month="true"' : ''}>
           <td class="col-sticky-1">${r.year}</td>
           <td class="col-sticky-2">${monthLabelHtml}</td>
           ${memberCellsHtml}
-          <td class="cell-total">${r.total > 0 ? formatNumber(r.total) : '0'}</td>
+          <td class="${totalCellClass}">${totalVal}</td>
           <td style="text-align:center;">${noteCellHtml}</td>
         </tr>
       `;
@@ -928,37 +931,37 @@
           </td>
           ${gtCells}
           <td class="cell-total" style="font-size:0.95rem;">${formatNumber(gt.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;font-weight:600;">✓ Verified</td>
+          <td style="text-align:center;"><span class="status-verified-pill">✓ Verified</span></td>
         </tr>
         <tr class="row-adjustment">
           <td class="col-sticky-1"><span class="badge-tfoot adj">IFTER</span></td>
           <td class="col-sticky-2">
             <div style="font-weight:700;line-height:1.2;">Donation</div>
-            <div style="font-size:0.7rem;font-weight:600;opacity:0.85;">ইফতার অনুদান</div>
+            <div style="font-size:0.7rem;font-weight:600;color:var(--text-muted);">ইফতার অনুদান</div>
           </td>
           ${adjCells}
           <td class="cell-total">${formatNumber(adj.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;font-weight:600;">Rubel &amp; Zia</td>
+          <td style="text-align:center;font-size:0.75rem;font-weight:600;color:#b45309;">Rubel &amp; Zia</td>
         </tr>
         <tr class="row-net">
           <td class="col-sticky-1"><span class="badge-tfoot net">DPS NET</span></td>
           <td class="col-sticky-2">
             <div style="font-weight:800;line-height:1.2;">Net Fund</div>
-            <div style="font-size:0.7rem;font-weight:600;opacity:0.85;">মূল ডিপিএস তহবিল</div>
+            <div style="font-size:0.7rem;font-weight:600;color:var(--text-muted);">মূল ডিপিএস তহবিল</div>
           </td>
           ${netCells}
           <td class="cell-total">${formatNumber(net.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;font-weight:600;">Equal Share</td>
+          <td style="text-align:center;font-size:0.75rem;font-weight:600;color:#4338ca;">Equal Share</td>
         </tr>
         <tr class="row-dps">
           <td class="col-sticky-1"><span class="badge-tfoot dps">EXTRA</span></td>
           <td class="col-sticky-2">
             <div style="font-weight:800;line-height:1.2;">Allocation</div>
-            <div style="font-size:0.7rem;font-weight:600;opacity:0.85;">অতিরিক্ত বরাদ্দ</div>
+            <div style="font-size:0.7rem;font-weight:600;color:var(--text-muted);">অতিরিক্ত বরাদ্দ</div>
           </td>
           ${dpsCells}
           <td class="cell-total">${formatNumber(dps.docsTotal)}</td>
-          <td style="text-align:center;font-size:0.75rem;font-weight:600;">Mutual Trust Bank</td>
+          <td style="text-align:center;font-size:0.75rem;font-weight:600;color:#0e7490;">Mutual Trust Bank</td>
         </tr>
       `;
     }
