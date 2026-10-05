@@ -1080,6 +1080,7 @@
     const adjustment = data.summary.adjustment.members[member.id] || 0;
     const netTotal = data.summary.netTotal.members[member.id] || 0;
     const dpsShare = data.summary.dpsTarget.members[member.id] || 0;
+    const currentInfo = getCurrentMonthInfo();
 
     let rowsHtml = '';
     let totalDepositedCalc = 0;
@@ -1089,22 +1090,45 @@
     data.records.forEach(r => {
       const payment = r.payments[member.id];
       const hasPaid = payment !== null && payment > 0;
+      const isCurrentMonth = (r.year === currentInfo.year && r.month.toLowerCase() === currentInfo.month.toLowerCase());
       if (hasPaid) {
         totalDepositedCalc += payment;
         paidCount++;
       }
 
+      let statusCellHtml = '';
+      if (hasPaid) {
+        if (isCurrentMonth) {
+          statusCellHtml = '<span class="status-current-badge paid"><span class="pulse-dot"></span> Paid (Current)</span>';
+        } else {
+          statusCellHtml = '<span style="color:var(--accent-emerald);font-size:0.75rem;font-weight:600;">✓ Paid</span>';
+        }
+      } else {
+        if (isCurrentMonth) {
+          statusCellHtml = '<span class="status-current-badge active"><span class="pulse-dot-amber"></span> Current Due</span>';
+        } else {
+          statusCellHtml = '<span style="color:var(--text-muted);font-size:0.75rem;">Scheduled</span>';
+        }
+      }
+
+      const monthLabelHtml = isCurrentMonth ? `
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <strong>${escapeHtml(r.month)}</strong>
+          <span class="badge-current-month" title="Current Active Month"><span class="pulse-dot"></span> CURRENT</span>
+        </div>
+      ` : escapeHtml(r.month);
+
       rowsHtml += `
-        <tr class="member-table-row" data-paid="${hasPaid}" data-year="${r.year}">
+        <tr class="member-table-row ${isCurrentMonth ? 'row-current-month' : ''}" ${isCurrentMonth ? 'id="memberCurrentMonthRow"' : ''} data-paid="${hasPaid}" data-year="${r.year}">
           <td><strong>${r.year}</strong></td>
-          <td>${r.month}</td>
+          <td>${monthLabelHtml}</td>
           <td style="text-align:right;font-family:var(--font-mono);font-weight:600;color:${hasPaid ? 'var(--text-highlight)' : 'var(--text-muted)'};">
             ${hasPaid ? formatNumber(payment) : '—'}
           </td>
           <td style="text-align:center;">
-            ${hasPaid ? '<span style="color:var(--accent-emerald);font-size:0.75rem;font-weight:600;">✓ Paid</span>' : '<span style="color:var(--text-muted);font-size:0.75rem;">—</span>'}
+            ${statusCellHtml}
           </td>
-          <td style="font-size:0.75rem;color:var(--text-secondary);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+          <td style="font-size:0.75rem;color:var(--text-secondary);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
             ${escapeHtml(r.note || '')}
           </td>
         </tr>
@@ -1131,9 +1155,9 @@
         </div>
       </div>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;font-size:0.8rem;color:var(--text-secondary);flex-wrap:wrap;gap:0.6rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-          <span>Installments: <strong id="memberPaidCountText">${paidCount} of 48 Months</strong></span>
+      <div class="member-statement-toolbar">
+        <div class="toolbar-filter-wrap">
+          <span class="toolbar-stat-pill">Installments: <strong id="memberPaidCountText">${paidCount} of 48 Months</strong></span>
           <div class="member-filter-pills" id="memberFilterPills">
             <button class="member-pill-btn active" onclick="filterMemberStatementTable('all', event)">All (48)</button>
             <button class="member-pill-btn" onclick="filterMemberStatementTable('paid', event)">Paid (${paidCount})</button>
@@ -1202,7 +1226,7 @@
         </div>
       </div>
 
-      <div style="max-height:380px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-md);">
+      <div id="memberTableContainer" style="max-height:380px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-md);">
         <table class="ledger-table" style="font-size:0.8rem;">
           <thead>
             <tr>
@@ -1221,6 +1245,38 @@
     `;
 
     modal.classList.add('open');
+
+    // Populate modal footer with verified summary and studio action
+    const modalFooter = document.getElementById('memberModalFooter');
+    if (modalFooter) {
+      modalFooter.innerHTML = `
+        <div class="modal-footer-info">
+          <span style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--text-secondary);">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-emerald);"></span>
+            Verified Total: <strong style="color:var(--text-primary);font-family:var(--font-mono);">${formatCurrency(grandTotal)}</strong> (${paidCount} of 48)
+          </span>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <button class="btn btn-secondary" onclick="openExportStudio('${member.id}')" style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.4rem 0.75rem;font-size:0.8rem;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Customize &amp; Print Studio
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal('memberModal')" style="padding:0.4rem 0.85rem;font-size:0.8rem;">Close</button>
+        </div>
+      `;
+    }
+
+    // Auto-scroll to current month row if present
+    setTimeout(() => {
+      const curRow = document.getElementById('memberCurrentMonthRow');
+      const container = document.getElementById('memberTableContainer');
+      if (curRow && container) {
+        const rowRect = curRow.getBoundingClientRect();
+        const contRect = container.getBoundingClientRect();
+        const targetScroll = container.scrollTop + (rowRect.top - contRect.top) - (container.clientHeight / 2) + (rowRect.height / 2);
+        container.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
+      }
+    }, 120);
   };
 
   // Note Detail Modal
@@ -1572,11 +1628,25 @@
     }
     const popover = document.getElementById('memberExportPopover');
     const toggleBtn = document.getElementById('btnToggleExportMenu');
+    const wrap = document.getElementById('memberExportDropdownWrap');
     if (!popover) return;
     const isOpen = popover.classList.contains('open');
     if (isOpen) {
       closeMemberExportDropdown();
     } else {
+      // Smart positioning to prevent left-side clipping
+      if (wrap) {
+        const wrapRect = wrap.getBoundingClientRect();
+        const modal = document.querySelector('#memberModal .modal-dialog') || wrap.closest('.modal-dialog');
+        const modalLeft = modal ? modal.getBoundingClientRect().left : 0;
+        const offsetFromModalLeft = wrapRect.right - modalLeft;
+        // If distance from modal left is under 330px, anchor popover to left edge of wrap so it flows towards right
+        if (offsetFromModalLeft < 330 || wrapRect.left < 20) {
+          popover.classList.add('open-left');
+        } else {
+          popover.classList.remove('open-left');
+        }
+      }
       popover.classList.add('open');
       if (toggleBtn) {
         toggleBtn.classList.add('active');
@@ -2394,6 +2464,24 @@
 
     // Initial load: Instant render + background Google Sheets live check
     loadData(false);
+
+    // Support deep link to member statement modal via URL parameter (?member=id or ?modal=id)
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberParam = urlParams.get('member') || urlParams.get('modal') || urlParams.get('test_modal');
+    if (memberParam) {
+      setTimeout(() => {
+        if (typeof window.openMemberModal === 'function') {
+          window.openMemberModal(memberParam);
+          if (urlParams.get('popover') || urlParams.get('test_popover')) {
+            setTimeout(() => {
+              if (typeof window.toggleMemberExportDropdown === 'function') {
+                window.toggleMemberExportDropdown();
+              }
+            }, 300);
+          }
+        }
+      }, 400);
+    }
 
     // Auto-sync periodically with Google Sheet
     setInterval(() => {
