@@ -51,12 +51,6 @@ window.INITIAL_SHEET_DATA = {
       "name": "Rajib",
       "colIndex": 9,
       "role": "Member / Contributor"
-    },
-    {
-      "id": "joint",
-      "name": "Salah uddin & Shahdat",
-      "colIndex": 10,
-      "role": "Joint / Special"
     }
   ],
   "records": [
@@ -71,8 +65,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3488,
         "foysal": 3488,
         "sumon": 3488,
-        "rajib": 3488,
-        "joint": null
+        "rajib": 3488
       },
       "total": 24316,
       "note": "",
@@ -89,8 +82,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3375,
         "foysal": 3375,
         "sumon": 3375,
-        "rajib": 3375,
-        "joint": null
+        "rajib": 3375
       },
       "total": 23625,
       "note": "",
@@ -107,8 +99,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3500,
         "foysal": 3500,
         "sumon": 3375,
-        "rajib": 3500,
-        "joint": null
+        "rajib": 3500
       },
       "total": 24475,
       "note": "",
@@ -125,8 +116,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3500,
         "foysal": 3500,
         "sumon": 3375,
-        "rajib": 3500,
-        "joint": null
+        "rajib": 3500
       },
       "total": 24375,
       "note": "",
@@ -143,8 +133,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3500,
         "foysal": 3500,
         "sumon": 3375,
-        "rajib": 3500,
-        "joint": null
+        "rajib": 3500
       },
       "total": 24375,
       "note": "",
@@ -161,8 +150,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3500,
         "foysal": 3500,
         "sumon": 3375,
-        "rajib": 3500,
-        "joint": null
+        "rajib": 3500
       },
       "total": 24375,
       "note": "",
@@ -179,8 +167,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -197,8 +184,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -215,8 +201,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -233,8 +218,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -251,8 +235,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -269,8 +252,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 5965,
         "foysal": 5965,
         "sumon": 5840,
-        "rajib": 5965,
-        "joint": null
+        "rajib": 5965
       },
       "total": 41630,
       "note": "রুবেল & জিয়ার টাকা সবার মধ্যে 1980/= করে ভাগ করে দেওয়া হলো.",
@@ -287,8 +269,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -305,8 +286,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -323,8 +303,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 3985,
         "foysal": 3985,
         "sumon": 3860,
-        "rajib": 3985,
-        "joint": null
+        "rajib": 3985
       },
       "total": 27770,
       "note": "",
@@ -341,8 +320,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 4000,
         "foysal": 4000,
         "sumon": 3860,
-        "rajib": 4000,
-        "joint": null
+        "rajib": 4000
       },
       "total": 27860,
       "note": "",
@@ -359,8 +337,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 4000,
         "foysal": 4000,
         "sumon": 3860,
-        "rajib": 4000,
-        "joint": null
+        "rajib": 4000
       },
       "total": 27860,
       "note": "",
@@ -377,8 +354,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 4000,
         "foysal": 4000,
         "sumon": 3860,
-        "rajib": 4000,
-        "joint": null
+        "rajib": 4000
       },
       "total": 27860,
       "note": "",
@@ -395,8 +371,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 4000,
         "foysal": 4000,
         "sumon": 3860,
-        "rajib": 4000,
-        "joint": null
+        "rajib": 4000
       },
       "total": 27860,
       "note": "",
@@ -413,8 +388,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 4000,
         "foysal": 4000,
         "sumon": 3860,
-        "rajib": 4000,
-        "joint": null
+        "rajib": 4000
       },
       "total": 27860,
       "note": "",
@@ -431,8 +405,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 4000,
         "foysal": 4000,
         "sumon": null,
-        "rajib": 4000,
-        "joint": null
+        "rajib": 4000
       },
       "total": 24000,
       "note": "",
@@ -449,8 +422,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -467,8 +439,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -485,8 +456,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -503,8 +473,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -521,8 +490,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -539,8 +507,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -557,8 +524,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -575,8 +541,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -593,8 +558,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -611,8 +575,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -629,8 +592,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -647,8 +609,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -665,8 +626,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -683,8 +643,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -701,8 +660,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -719,8 +677,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -737,8 +694,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -755,8 +711,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -773,8 +728,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -791,8 +745,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -809,8 +762,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -827,8 +779,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -845,8 +796,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -863,8 +813,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -881,8 +830,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -899,8 +847,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -917,8 +864,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": null,
         "foysal": null,
         "sumon": null,
-        "rajib": null,
-        "joint": null
+        "rajib": null
       },
       "total": 0,
       "note": "",
@@ -936,8 +882,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 82708,
         "foysal": 82708,
         "sumon": 76383,
-        "rajib": 82708,
-        "joint": 0
+        "rajib": 82708
       }
     },
     "adjustment": {
@@ -950,8 +895,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 6325,
         "foysal": 6325,
         "sumon": 0,
-        "rajib": 6325,
-        "joint": 0
+        "rajib": 6325
       }
     },
     "netTotal": {
@@ -964,8 +908,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 76383,
         "foysal": 76383,
         "sumon": 76383,
-        "rajib": 76383,
-        "joint": 0
+        "rajib": 76383
       }
     },
     "dpsTarget": {
@@ -978,8 +921,7 @@ window.INITIAL_SHEET_DATA = {
         "mohin": 17143,
         "foysal": 17143,
         "sumon": 17143,
-        "rajib": 17143,
-        "joint": 0
+        "rajib": 17143
       }
     },
     "shahadatSpecial": 5500

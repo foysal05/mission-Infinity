@@ -41,7 +41,17 @@
       annualRate: 8.5,
       durationYears: 4,
       membersCount: 7
-    }
+    },
+    exportStudio: {
+      memberId: null,
+      filter: 'all',
+      format: 'csv',
+      includeHeader: true,
+      includeSummary: true,
+      includeNotes: true,
+      delimiter: ','
+    },
+    memberModalFilter: 'all'
   };
 
   // Helper: Format Currency (Bangladeshi Taka)
@@ -137,8 +147,7 @@
       { id: 'mohin', name: 'Mohin', colIndex: 5, role: 'Member / Contributor' },
       { id: 'foysal', name: 'Foysal', colIndex: 6, role: 'Member / Contributor' },
       { id: 'sumon', name: 'Sumon', colIndex: 8, role: 'Member / Contributor' },
-      { id: 'rajib', name: 'Rajib', colIndex: 9, role: 'Member / Contributor' },
-      { id: 'joint', name: 'Salah uddin & Shahdat', colIndex: 10, role: 'Joint / Special' }
+      { id: 'rajib', name: 'Rajib', colIndex: 9, role: 'Member / Contributor' }
     ];
 
     let currentYear = '2025';
@@ -602,7 +611,7 @@
     if (distCtx) {
       if (state.charts.distribution) state.charts.distribution.destroy();
 
-      const primaryMembers = data.members.filter(m => m.id !== 'joint');
+      const primaryMembers = data.members;
       const memberLabels = primaryMembers.map(m => m.name);
       const memberTotals = primaryMembers.map(m => data.summary.grandTotal.members[m.id] || 0);
 
@@ -740,7 +749,7 @@
     if (filteredRecords.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="${members.length + 3}" style="text-align:center;padding:2.5rem 1rem;color:var(--text-muted);">
+          <td colspan="${members.length + 4}" style="text-align:center;padding:2.5rem 1rem;color:var(--text-muted);">
             <div style="font-size:1.5rem;margin-bottom:0.5rem;">🔍</div>
             <div style="font-weight:600;font-size:0.95rem;color:var(--text-secondary);">No ledger records match your filter</div>
             <div style="font-size:0.8rem;margin-top:0.25rem;">Try selecting "All Years" or clearing search keywords.</div>
@@ -954,6 +963,7 @@
     let rowsHtml = '';
     let totalDepositedCalc = 0;
     let paidCount = 0;
+    state.memberModalFilter = 'all';
 
     data.records.forEach(r => {
       const payment = r.payments[member.id];
@@ -964,7 +974,7 @@
       }
 
       rowsHtml += `
-        <tr>
+        <tr class="member-table-row" data-paid="${hasPaid}" data-year="${r.year}">
           <td><strong>${r.year}</strong></td>
           <td>${r.month}</td>
           <td style="text-align:right;font-family:var(--font-mono);font-weight:600;color:${hasPaid ? 'var(--text-highlight)' : 'var(--text-muted)'};">
@@ -1000,12 +1010,75 @@
         </div>
       </div>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;font-size:0.8rem;color:var(--text-secondary);">
-        <span>Installments Completed: <strong>${paidCount} of 48 Months</strong></span>
-        <button class="btn btn-secondary" onclick="exportMemberCSV('${member.id}')" style="padding:0.35rem 0.75rem;font-size:0.75rem;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          Export Statement CSV
-        </button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;font-size:0.8rem;color:var(--text-secondary);flex-wrap:wrap;gap:0.6rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <span>Installments: <strong id="memberPaidCountText">${paidCount} of 48 Months</strong></span>
+          <div class="member-filter-pills" id="memberFilterPills">
+            <button class="member-pill-btn active" onclick="filterMemberStatementTable('all', event)">All (48)</button>
+            <button class="member-pill-btn" onclick="filterMemberStatementTable('paid', event)">Paid (${paidCount})</button>
+            <button class="member-pill-btn" onclick="filterMemberStatementTable('upcoming', event)">Upcoming (${48 - paidCount})</button>
+          </div>
+        </div>
+
+        <div class="export-dropdown-wrap" id="memberExportDropdownWrap">
+          <div class="btn-group-interactive">
+            <button class="interactive-export-main-btn" id="btnQuickExportCSV" onclick="quickExportMember('csv')" title="Click for instant download with animated feedback">
+              <svg class="export-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span class="btn-text">Export Statement CSV</span>
+            </button>
+            <button class="interactive-export-toggle-btn" id="btnToggleExportMenu" onclick="toggleMemberExportDropdown(event)" title="More formats, WhatsApp copy &amp; Studio" aria-expanded="false">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+
+          <!-- Interactive Popover Dropdown Menu -->
+          <div class="interactive-export-popover" id="memberExportPopover">
+            <div class="popover-header">
+              <span class="popover-title">Export Options</span>
+              <span class="popover-badge">${escapeHtml(member.name)}</span>
+            </div>
+            <div class="popover-items">
+              <button class="popover-item" onclick="quickExportMember('csv', 'all')">
+                <div class="popover-item-icon csv">📄</div>
+                <div class="popover-item-content">
+                  <div class="popover-item-title">Standard CSV (All 48 Months)</div>
+                  <div class="popover-item-desc">Excel UTF-8 format with bank header</div>
+                </div>
+                <span class="popover-tag">48 Mos</span>
+              </button>
+              <button class="popover-item" onclick="quickExportMember('csv', 'paid')">
+                <div class="popover-item-icon paid">✓</div>
+                <div class="popover-item-content">
+                  <div class="popover-item-title">Paid Installments Only</div>
+                  <div class="popover-item-desc">${paidCount} verified cleared payments (${formatCurrency(grandTotal)})</div>
+                </div>
+                <span class="popover-tag success">${paidCount} Mos</span>
+              </button>
+              <button class="popover-item" onclick="quickExportMember('whatsapp', 'paid')">
+                <div class="popover-item-icon wa">💬</div>
+                <div class="popover-item-content">
+                  <div class="popover-item-title">Copy for WhatsApp / SMS</div>
+                  <div class="popover-item-desc">Formatted statement ready to paste</div>
+                </div>
+                <span class="popover-tag">Copy</span>
+              </button>
+              <button class="popover-item" onclick="printOfficialMemberStatement('${member.id}')">
+                <div class="popover-item-icon print">🖨️</div>
+                <div class="popover-item-content">
+                  <div class="popover-item-title">Print Official Statement (PDF)</div>
+                  <div class="popover-item-desc">Mutual Trust Bank Kadair Bazar format</div>
+                </div>
+                <span class="popover-tag">PDF</span>
+              </button>
+            </div>
+            <div class="popover-footer">
+              <button class="btn-open-studio" onclick="openExportStudio('${member.id}')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Customize &amp; Live Preview Studio...
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div style="max-height:380px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-md);">
@@ -1019,7 +1092,7 @@
               <th style="padding:0.6rem 0.8rem;">Notes</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="memberStatementTableBody">
             ${rowsHtml}
           </tbody>
         </table>
@@ -1353,9 +1426,9 @@
 
     csv += '\n';
     const gtRow = ['GRAND TOTAL', '', ...data.members.map(m => data.summary.grandTotal.members[m.id] || 0), data.summary.grandTotal.docsTotal, ''];
-    const adjRow = ['IFTER DONATION', '', ...data.summary.adjustment.members[m.id] || 0, data.summary.adjustment.docsTotal, ''];
-    const netRow = ['DPS NET AMOUNT', '', ...data.summary.netTotal.members[m.id] || 0, data.summary.netTotal.docsTotal, ''];
-    const dpsRow = ['EXTRA ALLOCATION', '', ...data.summary.dpsTarget.members[m.id] || 0, data.summary.dpsTarget.docsTotal, ''];
+    const adjRow = ['IFTER DONATION', '', ...data.members.map(m => data.summary.adjustment.members[m.id] || 0), data.summary.adjustment.docsTotal, ''];
+    const netRow = ['DPS NET AMOUNT', '', ...data.members.map(m => data.summary.netTotal.members[m.id] || 0), data.summary.netTotal.docsTotal, ''];
+    const dpsRow = ['EXTRA ALLOCATION', '', ...data.members.map(m => data.summary.dpsTarget.members[m.id] || 0), data.summary.dpsTarget.docsTotal, ''];
 
     csv += gtRow.join(',') + '\n';
     csv += adjRow.join(',') + '\n';
@@ -1366,38 +1439,706 @@
     showToast('Master ledger downloaded as CSV', 'success');
   };
 
-  window.exportMemberCSV = function (memberId) {
+  // ===================================================================
+  // 6. Interactive Statement Export Suite & Export Studio
+  // ===================================================================
+
+  // Toggle dropdown popover
+  window.toggleMemberExportDropdown = function (evt) {
+    if (evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
+    const popover = document.getElementById('memberExportPopover');
+    const toggleBtn = document.getElementById('btnToggleExportMenu');
+    if (!popover) return;
+    const isOpen = popover.classList.contains('open');
+    if (isOpen) {
+      closeMemberExportDropdown();
+    } else {
+      popover.classList.add('open');
+      if (toggleBtn) {
+        toggleBtn.classList.add('active');
+        toggleBtn.setAttribute('aria-expanded', 'true');
+      }
+    }
+  };
+
+  window.closeMemberExportDropdown = function () {
+    const popover = document.getElementById('memberExportPopover');
+    const toggleBtn = document.getElementById('btnToggleExportMenu');
+    if (popover) popover.classList.remove('open');
+    if (toggleBtn) {
+      toggleBtn.classList.remove('active');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  // Close dropdown on click outside
+  document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('memberExportDropdownWrap');
+    if (wrap && !wrap.contains(e.target)) {
+      closeMemberExportDropdown();
+    }
+  });
+
+  // Live filter in member modal table
+  window.filterMemberStatementTable = function (filter, evt) {
+    state.memberModalFilter = filter;
+    document.querySelectorAll('#memberFilterPills .member-pill-btn').forEach(btn => btn.classList.remove('active'));
+    if (evt && evt.target) evt.target.classList.add('active');
+
+    const rows = document.querySelectorAll('#memberStatementTableBody tr');
+    let visibleCount = 0;
+    rows.forEach(tr => {
+      const isPaid = tr.getAttribute('data-paid') === 'true';
+      let show = false;
+      if (filter === 'all') show = true;
+      else if (filter === 'paid') show = isPaid;
+      else if (filter === 'upcoming') show = !isPaid;
+
+      tr.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    const quickBtn = document.getElementById('btnQuickExportCSV');
+    if (quickBtn) {
+      const label = quickBtn.querySelector('.btn-text');
+      if (label) {
+        if (filter === 'paid') label.textContent = 'Export Paid CSV';
+        else if (filter === 'upcoming') label.textContent = 'Export Upcoming CSV';
+        else label.textContent = 'Export Statement CSV';
+      }
+    }
+  };
+
+  // Quick export with micro-animated button state feedback
+  window.quickExportMember = function (format = 'csv', filterType = null) {
+    const memberId = state.selectedMemberId;
+    const data = state.data;
+    if (!memberId || !data) return;
+    const member = data.members.find(m => m.id === memberId);
+    if (!member) return;
+
+    filterType = filterType || state.memberModalFilter || 'all';
+    closeMemberExportDropdown();
+
+    const mainBtn = document.getElementById('btnQuickExportCSV');
+    const origHtml = mainBtn ? mainBtn.innerHTML : '';
+
+    if (mainBtn) {
+      mainBtn.classList.add('btn-loading');
+      mainBtn.innerHTML = `
+        <span class="spinner-icon"></span>
+        <span class="btn-text">Generating...</span>
+      `;
+    }
+
+    setTimeout(() => {
+      try {
+        if (format === 'whatsapp') {
+          const text = generateMemberWhatsAppText(member, filterType);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+              showToast(`WhatsApp statement for ${member.name} copied!`, 'success');
+            }).catch(() => fallbackCopy(text, 'WhatsApp Statement'));
+          } else {
+            fallbackCopy(text, 'WhatsApp Statement');
+          }
+        } else {
+          const csv = generateMemberCSVContent({
+            member: member,
+            filter: filterType,
+            delimiter: ',',
+            includeHeader: true,
+            includeSummary: true,
+            includeNotes: true
+          });
+          const dateStr = new Date().toISOString().split('T')[0];
+          const suffix = filterType === 'paid' ? 'paid_only' : (filterType === 'all' ? 'full' : filterType);
+          const filename = `statement_${member.name.toLowerCase().replace(/\s+/g, '_')}_${suffix}_${dateStr}.csv`;
+          downloadCSV(csv, filename);
+          showToast(`Downloaded: ${filename}`, 'success');
+        }
+
+        if (mainBtn) {
+          mainBtn.classList.remove('btn-loading');
+          mainBtn.classList.add('btn-success-animated');
+          mainBtn.innerHTML = `
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span class="btn-text">${format === 'whatsapp' ? '✓ Copied to Clipboard!' : '✓ Downloaded!'}</span>
+          `;
+          setTimeout(() => {
+            mainBtn.classList.remove('btn-success-animated');
+            mainBtn.innerHTML = origHtml;
+          }, 2400);
+        }
+      } catch (err) {
+        console.error('Export error:', err);
+        showToast('Export error: ' + err.message, 'error');
+        if (mainBtn) {
+          mainBtn.classList.remove('btn-loading');
+          mainBtn.innerHTML = origHtml;
+        }
+      }
+    }, 450);
+  };
+
+  // Statement content generators
+  function generateMemberCSVContent(options) {
+    const { member, filter = 'all', delimiter = ',', includeHeader = true, includeSummary = true, includeNotes = true } = options;
+    const data = state.data;
+    if (!data || !member) return '';
+
+    const lines = [];
+    const d = delimiter;
+
+    if (includeHeader) {
+      lines.push(`"Mission Infinity - Official Financial Statement"`);
+      lines.push(`"Member: ${member.name}"${d}"Role: ${member.role}"`);
+      lines.push(`"Bank: ${data.bankInfo.bankName}"${d}"Branch: ${data.bankInfo.branch}"`);
+      lines.push(`"A/C: ${data.bankInfo.accountNumber}"${d}"DPS A/C: ${data.bankInfo.dpsNumber}"${d}"DPS Holder: ${data.bankInfo.dpsHolder}"`);
+      lines.push(`"Statement Date: ${new Date().toLocaleDateString('en-GB')}"${d}"Filter: ${filter.toUpperCase()}"`);
+      lines.push('');
+    }
+
+    const headers = ['Year', 'Month', 'Amount (BDT)', 'Status'];
+    if (includeNotes) headers.push('Notes');
+    lines.push(headers.join(d));
+
+    let recordList = data.records;
+    if (filter === 'paid') {
+      recordList = data.records.filter(r => r.payments[member.id] !== null && r.payments[member.id] > 0);
+    } else if (filter === 'upcoming') {
+      recordList = data.records.filter(r => !(r.payments[member.id] !== null && r.payments[member.id] > 0));
+    } else if (filter === '2025') {
+      recordList = data.records.filter(r => r.year === '2025');
+    } else if (filter === '2026') {
+      recordList = data.records.filter(r => r.year === '2026');
+    }
+
+    let subtotal = 0;
+    recordList.forEach(r => {
+      const p = r.payments[member.id];
+      const hasPaid = p !== null && p > 0;
+      if (hasPaid) subtotal += p;
+
+      const row = [
+        r.year,
+        `"${r.month}"`,
+        hasPaid ? p : 0,
+        hasPaid ? 'Paid' : 'Scheduled'
+      ];
+      if (includeNotes) {
+        row.push(`"${(r.note || '').replace(/"/g, '""')}"`);
+      }
+      lines.push(row.join(d));
+    });
+
+    if (includeSummary) {
+      lines.push('');
+      lines.push([`"FILTER SUBTOTAL"`, `"${filter.toUpperCase()}"`, subtotal, `"${recordList.length} Rows"`].slice(0, headers.length).join(d));
+      lines.push([`"GRAND TOTAL DEPOSITED"`, `""`, data.summary.grandTotal.members[member.id] || 0, `"Verified"`].slice(0, headers.length).join(d));
+      lines.push([`"IFTER DONATION"`, `""`, data.summary.adjustment.members[member.id] || 0, `"Rubel & Zia"`].slice(0, headers.length).join(d));
+      lines.push([`"DPS NET AMOUNT"`, `""`, data.summary.netTotal.members[member.id] || 0, `"Fund Balance"`].slice(0, headers.length).join(d));
+      lines.push([`"EXTRA ALLOCATION"`, `""`, data.summary.dpsTarget.members[member.id] || 0, `"Target Share"`].slice(0, headers.length).join(d));
+    }
+
+    return lines.join('\n');
+  }
+
+  function generateMemberWhatsAppText(member, filter = 'paid') {
+    const data = state.data;
+    if (!data || !member) return '';
+
+    let recordList = data.records;
+    if (filter === 'paid') {
+      recordList = data.records.filter(r => r.payments[member.id] !== null && r.payments[member.id] > 0);
+    } else if (filter === '2025') {
+      recordList = data.records.filter(r => r.year === '2025');
+    } else if (filter === '2026') {
+      recordList = data.records.filter(r => r.year === '2026');
+    }
+
+    const gt = data.summary.grandTotal.members[member.id] || 0;
+    const ift = data.summary.adjustment.members[member.id] || 0;
+    const net = data.summary.netTotal.members[member.id] || 0;
+    const dps = data.summary.dpsTarget.members[member.id] || 0;
+
+    let text = `🏦 *MISSION INFINITY — FINANCIAL STATEMENT*\n`;
+    text += `👤 *Member:* ${member.name} (${member.role})\n`;
+    text += `🏛️ *Bank:* ${data.bankInfo.bankName} (${data.bankInfo.branch})\n`;
+    text += `💳 *DPS A/C:* ${data.bankInfo.dpsNumber} | *Holder:* ${data.bankInfo.dpsHolder}\n`;
+    text += `📅 *Scope:* ${filter === 'paid' ? 'Paid Installments (Cleared)' : 'All 48 Installments'}\n`;
+    text += `──────────────────────\n`;
+    text += `💰 *Grand Total Deposited:* ৳${formatNumber(gt)}\n`;
+    text += `🌙 *Ifter Donation:* ৳${formatNumber(ift)}\n`;
+    text += `⚖️ *DPS Net Share:* ৳${formatNumber(net)}\n`;
+    text += `📈 *Extra Allocation:* ৳${formatNumber(dps)}\n`;
+    text += `──────────────────────\n`;
+    text += `*Installments Breakdown (${recordList.length} entries):*\n`;
+
+    recordList.forEach((r, idx) => {
+      const p = r.payments[member.id];
+      const hasPaid = p !== null && p > 0;
+      text += `${idx + 1}. ${r.month} ${r.year}: ${hasPaid ? `৳${formatNumber(p)} ✓` : `৳0 (Scheduled)`}${r.note ? ` [Note: ${r.note}]` : ''}\n`;
+    });
+
+    text += `──────────────────────\n`;
+    text += `Generated on ${new Date().toLocaleDateString('en-GB')} via Mission Infinity Portal`;
+    return text;
+  }
+
+  function generateMemberJSONContent(member, filter = 'all') {
+    const data = state.data;
+    if (!data || !member) return '{}';
+
+    let recordList = data.records;
+    if (filter === 'paid') {
+      recordList = data.records.filter(r => r.payments[member.id] !== null && r.payments[member.id] > 0);
+    } else if (filter === '2025') {
+      recordList = data.records.filter(r => r.year === '2025');
+    } else if (filter === '2026') {
+      recordList = data.records.filter(r => r.year === '2026');
+    }
+
+    const payload = {
+      portal: 'Mission Infinity',
+      bankInfo: data.bankInfo,
+      member: member,
+      filterApplied: filter,
+      generatedAt: new Date().toISOString(),
+      summary: {
+        totalDeposited: data.summary.grandTotal.members[member.id] || 0,
+        ifterDonation: data.summary.adjustment.members[member.id] || 0,
+        dpsNetShare: data.summary.netTotal.members[member.id] || 0,
+        extraAllocation: data.summary.dpsTarget.members[member.id] || 0
+      },
+      records: recordList.map(r => ({
+        year: r.year,
+        month: r.month,
+        amount: r.payments[member.id] || 0,
+        isPaid: r.payments[member.id] !== null && r.payments[member.id] > 0,
+        note: r.note || ''
+      }))
+    };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  // Interactive Export Studio Modal Logic
+  window.openExportStudio = function (memberId) {
+    closeMemberExportDropdown();
     const data = state.data;
     if (!data) return;
+
+    memberId = memberId || state.selectedMemberId || data.members[0].id;
+    state.exportStudio.memberId = memberId;
+    state.exportStudio.filter = state.memberModalFilter || 'all';
+
+    renderExportStudio();
+    const modal = document.getElementById('exportStudioModal');
+    if (modal) modal.classList.add('open');
+  };
+
+  function renderExportStudio() {
+    const data = state.data;
+    const body = document.getElementById('exportStudioBody');
+    const memberId = state.exportStudio.memberId;
+    if (!data || !body || !memberId) return;
 
     const member = data.members.find(m => m.id === memberId);
     if (!member) return;
 
-    let csv = `Mission Infinity - Financial Statement for ${member.name}\n`;
-    csv += `Role: ${member.role}, Bank: ${data.bankInfo.bankName}, Branch: ${data.bankInfo.branch}\n\n`;
+    const st = state.exportStudio;
+    const subtitle = document.getElementById('exportStudioSubtitle');
+    if (subtitle) {
+      subtitle.textContent = `Statement for ${member.name} (${member.role}) • Mutual Trust Bank Kadair Bazar`;
+    }
 
-    csv += 'Year,Month,Amount (BDT),Status,Notes\n';
+    // Determine current records count and sum
+    let filteredRecords = data.records;
+    if (st.filter === 'paid') {
+      filteredRecords = data.records.filter(r => r.payments[member.id] !== null && r.payments[member.id] > 0);
+    } else if (st.filter === '2025') {
+      filteredRecords = data.records.filter(r => r.year === '2025');
+    } else if (st.filter === '2026') {
+      filteredRecords = data.records.filter(r => r.year === '2026');
+    }
 
-    data.records.forEach(r => {
+    let filterSum = 0;
+    filteredRecords.forEach(r => {
       const p = r.payments[member.id];
-      const hasPaid = p !== null && p > 0;
-      csv += [
-        r.year,
-        `"${r.month}"`,
-        hasPaid ? p : '0',
-        hasPaid ? 'Paid' : 'Unpaid',
-        `"${(r.note || '').replace(/"/g, '""')}"`
-      ].join(',') + '\n';
+      if (p !== null && p > 0) filterSum += p;
     });
 
-    csv += '\n';
-    csv += `Total Deposited,${data.summary.grandTotal.members[member.id] || 0}\n`;
-    csv += `Ifter Donation,${data.summary.adjustment.members[member.id] || 0}\n`;
-    csv += `DPS Net Share,${data.summary.netTotal.members[member.id] || 0}\n`;
-    csv += `Extra Allocation,${data.summary.dpsTarget.members[member.id] || 0}\n`;
+    // Generate preview string based on format
+    let previewContent = '';
+    let extLabel = '.csv';
+    if (st.format === 'csv') {
+      previewContent = generateMemberCSVContent({
+        member: member,
+        filter: st.filter,
+        delimiter: st.delimiter,
+        includeHeader: st.includeHeader,
+        includeSummary: st.includeSummary,
+        includeNotes: st.includeNotes
+      });
+      extLabel = '.csv';
+    } else if (st.format === 'tsv') {
+      previewContent = generateMemberCSVContent({
+        member: member,
+        filter: st.filter,
+        delimiter: '\t',
+        includeHeader: st.includeHeader,
+        includeSummary: st.includeSummary,
+        includeNotes: st.includeNotes
+      });
+      extLabel = '.tsv';
+    } else if (st.format === 'whatsapp') {
+      previewContent = generateMemberWhatsAppText(member, st.filter);
+      extLabel = '.txt';
+    } else if (st.format === 'json') {
+      previewContent = generateMemberJSONContent(member, st.filter);
+      extLabel = '.json';
+    }
 
-    downloadCSV(csv, `statement_${member.name.toLowerCase().replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
-    showToast(`Statement exported for ${member.name}`, 'success');
+    const estimatedBytes = new Blob([previewContent]).size;
+    const estimatedKb = (estimatedBytes / 1024).toFixed(1);
+
+    body.innerHTML = `
+      <div class="studio-grid">
+        <!-- Left: Interactive Controls -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="studio-card">
+            <div class="studio-section-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              1. Installment Scope &amp; Range
+            </div>
+            <div class="studio-pill-group">
+              <button class="studio-option-btn ${st.filter === 'all' ? 'active' : ''}" onclick="studioSetFilter('all')">
+                All 48 Months
+              </button>
+              <button class="studio-option-btn ${st.filter === 'paid' ? 'active' : ''}" onclick="studioSetFilter('paid')">
+                ✓ Paid Only (${filteredRecords.length})
+              </button>
+              <button class="studio-option-btn ${st.filter === '2025' ? 'active' : ''}" onclick="studioSetFilter('2025')">
+                Year 2025 (12 Mos)
+              </button>
+              <button class="studio-option-btn ${st.filter === '2026' ? 'active' : ''}" onclick="studioSetFilter('2026')">
+                Year 2026 (Active)
+              </button>
+            </div>
+          </div>
+
+          <div class="studio-card">
+            <div class="studio-section-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              2. Export Format
+            </div>
+            <div class="studio-pill-group">
+              <button class="studio-option-btn ${st.format === 'csv' ? 'active' : ''}" onclick="studioSetFormat('csv')">
+                📄 CSV (.csv)
+              </button>
+              <button class="studio-option-btn ${st.format === 'tsv' ? 'active' : ''}" onclick="studioSetFormat('tsv')">
+                📊 Excel TSV (.tsv)
+              </button>
+              <button class="studio-option-btn ${st.format === 'whatsapp' ? 'active' : ''}" onclick="studioSetFormat('whatsapp')">
+                💬 WhatsApp / Text
+              </button>
+              <button class="studio-option-btn ${st.format === 'json' ? 'active' : ''}" onclick="studioSetFormat('json')">
+                📦 JSON (.json)
+              </button>
+            </div>
+          </div>
+
+          <div class="studio-card">
+            <div class="studio-section-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              3. Data Customization
+            </div>
+            <label class="studio-checkbox-row">
+              <input type="checkbox" ${st.includeHeader ? 'checked' : ''} onchange="studioToggleOption('includeHeader')">
+              <span>Include Bank &amp; Account Header Info</span>
+            </label>
+            <label class="studio-checkbox-row">
+              <input type="checkbox" ${st.includeSummary ? 'checked' : ''} onchange="studioToggleOption('includeSummary')">
+              <span>Include Financial Totals &amp; DPS Share Breakdown</span>
+            </label>
+            <label class="studio-checkbox-row">
+              <input type="checkbox" ${st.includeNotes ? 'checked' : ''} onchange="studioToggleOption('includeNotes')">
+              <span>Include Remarks &amp; Audit Notices</span>
+            </label>
+
+            ${st.format === 'csv' ? `
+              <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.35rem;padding-top:0.5rem;border-top:1px dashed var(--border-color);font-size:0.75rem;">
+                <span style="color:var(--text-secondary);">Delimiter:</span>
+                <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;">
+                  <input type="radio" name="studioDelim" value="," ${st.delimiter === ',' ? 'checked' : ''} onchange="studioSetDelimiter(',')"> Comma (,)
+                </label>
+                <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;">
+                  <input type="radio" name="studioDelim" value=";" ${st.delimiter === ';' ? 'checked' : ''} onchange="studioSetDelimiter(';')"> Semicolon (;)
+                </label>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="studio-live-stats-bar">
+            <span>Selected: <strong>${filteredRecords.length} Rows</strong></span>
+            <span>Total: <span class="studio-stats-badge">${formatCurrency(filterSum)}</span></span>
+            <span style="color:var(--text-secondary);font-size:0.7rem;">~${estimatedKb} KB</span>
+          </div>
+        </div>
+
+        <!-- Right: Real-Time Live Preview -->
+        <div class="studio-preview-wrapper">
+          <div class="studio-preview-topbar">
+            <div class="studio-topbar-dots">
+              <span class="studio-dot red"></span>
+              <span class="studio-dot yellow"></span>
+              <span class="studio-dot green"></span>
+            </div>
+            <div class="studio-preview-title">
+              statement_${member.name.toLowerCase().replace(/\s+/g, '_')}${extLabel}
+            </div>
+            <button onclick="copyStudioContent()" style="background:transparent;border:none;color:#94a3b8;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;gap:0.3rem;" title="Copy to clipboard">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+          </div>
+          <pre class="studio-preview-code-box" id="studioLivePreviewBox">${escapeHtml(previewContent)}</pre>
+        </div>
+      </div>
+    `;
+
+    const dlBtnLabel = document.getElementById('btnStudioDownloadLabel');
+    if (dlBtnLabel) {
+      dlBtnLabel.textContent = `Download ${extLabel.toUpperCase()}`;
+    }
+  }
+
+  window.studioSetFilter = function (filter) {
+    state.exportStudio.filter = filter;
+    renderExportStudio();
+  };
+
+  window.studioSetFormat = function (format) {
+    state.exportStudio.format = format;
+    renderExportStudio();
+  };
+
+  window.studioToggleOption = function (optKey) {
+    state.exportStudio[optKey] = !state.exportStudio[optKey];
+    renderExportStudio();
+  };
+
+  window.studioSetDelimiter = function (delim) {
+    state.exportStudio.delimiter = delim;
+    renderExportStudio();
+  };
+
+  window.copyStudioContent = function () {
+    const box = document.getElementById('studioLivePreviewBox');
+    if (!box) return;
+    const content = box.textContent;
+    const btn = document.getElementById('btnStudioCopy');
+    const label = document.getElementById('btnStudioCopyLabel');
+    const origText = label ? label.textContent : 'Copy Data';
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(content).then(() => {
+        if (label) label.textContent = '✓ Copied!';
+        if (btn) btn.classList.add('btn-success-animated');
+        showToast('Statement content copied to clipboard!', 'success');
+        setTimeout(() => {
+          if (label) label.textContent = origText;
+          if (btn) btn.classList.remove('btn-success-animated');
+        }, 2000);
+      }).catch(() => fallbackCopy(content, 'Statement content'));
+    } else {
+      fallbackCopy(content, 'Statement content');
+    }
+  };
+
+  window.downloadStudioFile = function () {
+    const data = state.data;
+    const st = state.exportStudio;
+    if (!data || !st.memberId) return;
+
+    const member = data.members.find(m => m.id === st.memberId);
+    if (!member) return;
+
+    const box = document.getElementById('studioLivePreviewBox');
+    if (!box) return;
+    const content = box.textContent;
+
+    const btn = document.getElementById('btnStudioDownload');
+    const label = document.getElementById('btnStudioDownloadLabel');
+    const origText = label ? label.textContent : 'Download Statement';
+
+    if (btn) {
+      btn.classList.add('btn-loading');
+      if (label) label.textContent = 'Preparing...';
+    }
+
+    setTimeout(() => {
+      let ext = 'csv';
+      let mimeType = 'text/csv;charset=utf-8;';
+      if (st.format === 'tsv') {
+        ext = 'tsv';
+        mimeType = 'text/tab-separated-values;charset=utf-8;';
+      } else if (st.format === 'whatsapp') {
+        ext = 'txt';
+        mimeType = 'text/plain;charset=utf-8;';
+      } else if (st.format === 'json') {
+        ext = 'json';
+        mimeType = 'application/json;charset=utf-8;';
+      }
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `statement_${member.name.toLowerCase().replace(/\s+/g, '_')}_${st.filter}_${dateStr}.${ext}`;
+
+      const blob = new Blob([st.format === 'csv' || st.format === 'tsv' ? '\uFEFF' + content : content], { type: mimeType });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (btn) {
+        btn.classList.remove('btn-loading');
+        btn.classList.add('btn-success-animated');
+        if (label) label.textContent = '✓ Downloaded!';
+        setTimeout(() => {
+          btn.classList.remove('btn-success-animated');
+          if (label) label.textContent = origText;
+        }, 2200);
+      }
+
+      showToast(`Statement saved as ${filename}`, 'success');
+    }, 400);
+  };
+
+  // Official Bank Statement Print Layout
+  window.printOfficialMemberStatement = function (memberId) {
+    const data = state.data;
+    if (!data) return;
+    memberId = memberId || state.selectedMemberId;
+    const member = data.members.find(m => m.id === memberId);
+    if (!member) return;
+
+    closeMemberExportDropdown();
+
+    const printContainer = document.getElementById('officialPrintStatement');
+    if (!printContainer) return;
+
+    const gt = data.summary.grandTotal.members[member.id] || 0;
+    const ift = data.summary.adjustment.members[member.id] || 0;
+    const net = data.summary.netTotal.members[member.id] || 0;
+    const dps = data.summary.dpsTarget.members[member.id] || 0;
+
+    let rowsHtml = '';
+    let paidTotal = 0;
+    data.records.forEach((r, idx) => {
+      const p = r.payments[member.id];
+      const hasPaid = p !== null && p > 0;
+      if (hasPaid) paidTotal += p;
+      rowsHtml += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${r.year}</td>
+          <td>${r.month}</td>
+          <td style="text-align:right;font-family:monospace;">${hasPaid ? formatNumber(p) : '—'}</td>
+          <td style="text-align:center;">${hasPaid ? 'PAID' : 'SCHEDULED'}</td>
+          <td>${escapeHtml(r.note || '')}</td>
+        </tr>
+      `;
+    });
+
+    printContainer.innerHTML = `
+      <div class="print-bank-header">
+        <div>
+          <div class="print-bank-title">${escapeHtml(data.bankInfo.bankName)}</div>
+          <div class="print-bank-sub">Branch: ${escapeHtml(data.bankInfo.branch)} • DPS Portal Ledger System</div>
+          <div class="print-bank-sub">Main Account No: <strong>${data.bankInfo.accountNumber}</strong> | DPS Account No: <strong>${data.bankInfo.dpsNumber}</strong></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:700;font-size:1.1rem;color:#0f172a;">MEMBER STATEMENT</div>
+          <div style="font-size:0.8rem;color:#64748b;margin-top:0.2rem;">Generated: ${new Date().toLocaleDateString('en-GB')}</div>
+        </div>
+      </div>
+
+      <div class="print-meta-grid">
+        <div class="print-meta-box">
+          <div class="print-meta-lbl">Member Name</div>
+          <div class="print-meta-val">${escapeHtml(member.name)}</div>
+          <div style="font-size:0.75rem;color:#64748b;">${escapeHtml(member.role)}</div>
+        </div>
+        <div class="print-meta-box">
+          <div class="print-meta-lbl">Total Deposited</div>
+          <div class="print-meta-val" style="color:#059669;">৳${formatNumber(gt)}</div>
+          <div style="font-size:0.75rem;color:#64748b;">Verified Bank Total</div>
+        </div>
+        <div class="print-meta-box">
+          <div class="print-meta-lbl">DPS Net Share</div>
+          <div class="print-meta-val" style="color:#4f46e5;">৳${formatNumber(net)}</div>
+          <div style="font-size:0.75rem;color:#64748b;">Core DPS Capital</div>
+        </div>
+        <div class="print-meta-box">
+          <div class="print-meta-lbl">Extra Target</div>
+          <div class="print-meta-val" style="color:#0284c7;">৳${formatNumber(dps)}</div>
+          <div style="font-size:0.75rem;color:#64748b;">Mutual Trust Bank</div>
+        </div>
+      </div>
+
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th style="width:30px;">#</th>
+            <th style="width:55px;">Year</th>
+            <th style="width:90px;">Month</th>
+            <th style="text-align:right;width:100px;">Amount (BDT)</th>
+            <th style="text-align:center;width:95px;">Status</th>
+            <th>Verification / Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+          <tr class="total-row">
+            <td colspan="3" style="font-weight:800;text-align:right;">TOTAL CLEARED:</td>
+            <td style="text-align:right;font-family:monospace;font-weight:800;">৳${formatNumber(paidTotal)}</td>
+            <td colspan="2" style="font-size:0.75rem;color:#059669;">Audited &amp; Verified</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="print-sign-row">
+        <div class="print-sign-line">
+          Prepared By / Auditor
+        </div>
+        <div class="print-sign-line">
+          Member Signature (${escapeHtml(member.name)})
+        </div>
+        <div class="print-sign-line">
+          Branch Manager (Kadair Bazar)
+        </div>
+      </div>
+    `;
+
+    document.body.classList.add('printing-member-statement');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-member-statement');
+    }, 1000);
+  };
+
+  // Backward compatible alias
+  window.exportMemberCSV = function (memberId) {
+    if (memberId) state.selectedMemberId = memberId;
+    quickExportMember('csv');
   };
 
   function downloadCSV(csvContent, filename) {
@@ -1410,6 +2151,7 @@
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   // ===================================================================
@@ -1445,13 +2187,13 @@
   }
 
   function initTheme() {
-    const savedTheme = localStorage.getItem('mission_infinity_theme') || 'dark';
+    const savedTheme = localStorage.getItem('mission_infinity_theme_pref') || 'light';
     setTheme(savedTheme, false);
 
     const themeBtn = document.getElementById('btnThemeToggle');
     if (themeBtn) {
       themeBtn.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
         const next = current === 'dark' ? 'light' : 'dark';
         setTheme(next, true);
         showToast(`Switched to ${next} mode`, 'info');
@@ -1461,7 +2203,7 @@
 
   function setTheme(theme, redrawCharts = true) {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('mission_infinity_theme', theme);
+    localStorage.setItem('mission_infinity_theme_pref', theme);
 
     const themeBtn = document.getElementById('btnThemeToggle');
     if (themeBtn) {
