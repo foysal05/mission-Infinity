@@ -51,7 +51,15 @@
       includeNotes: true,
       delimiter: ','
     },
-    memberModalFilter: 'all'
+    memberModalFilter: 'all',
+    masterLedgerPrint: {
+      year: 'all',
+      status: 'all',
+      orientation: 'landscape',
+      includeHeader: true,
+      includeSignatures: true,
+      includeSummary: true
+    }
   };
 
   // Helper: Format Currency (Bangladeshi Taka)
@@ -1428,6 +1436,9 @@
         document.querySelectorAll('.modal-backdrop.open').forEach(modal => {
           modal.classList.remove('open');
         });
+        if (typeof window.closeLedgerPrintDropdown === 'function') {
+          window.closeLedgerPrintDropdown();
+        }
       }
     });
   }
@@ -2690,6 +2701,491 @@
   };
 
   // ===================================================================
+  // Master Ledger Print Option Controller
+  // ===================================================================
+
+  window.toggleLedgerPrintDropdown = function (e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const wrap = document.getElementById('ledgerPrintDropdownWrap');
+    const controlsBar = document.querySelector('.table-controls-bar');
+    if (wrap) {
+      const isOpen = wrap.classList.toggle('open');
+      if (controlsBar) {
+        controlsBar.classList.toggle('has-open-dropdown', isOpen);
+      }
+      if (isOpen) {
+        const menu = document.getElementById('ledgerPrintMenu');
+        if (menu) {
+          const rect = wrap.getBoundingClientRect();
+          // If the button is positioned close to right screen edge, align right; otherwise align left
+          if (window.innerWidth - rect.left < 330 && rect.right >= 330) {
+            menu.style.left = 'auto';
+            menu.style.right = '0';
+            menu.style.transformOrigin = 'top right';
+          } else {
+            menu.style.left = '0';
+            menu.style.right = 'auto';
+            menu.style.transformOrigin = 'top left';
+          }
+        }
+      }
+    }
+  };
+
+  window.closeLedgerPrintDropdown = function () {
+    const wrap = document.getElementById('ledgerPrintDropdownWrap');
+    const controlsBar = document.querySelector('.table-controls-bar');
+    if (wrap) {
+      wrap.classList.remove('open');
+    }
+    if (controlsBar) {
+      controlsBar.classList.remove('has-open-dropdown');
+    }
+  };
+
+  window.printMasterLedgerDirect = function (year, status) {
+    state.masterLedgerPrint.year = year || 'all';
+    state.masterLedgerPrint.status = status || 'all';
+    window.closeLedgerPrintDropdown();
+    executeMasterLedgerPrint();
+  };
+
+  window.openMasterLedgerPrintModal = function () {
+    window.closeLedgerPrintDropdown();
+    if (state.yearFilter && state.yearFilter !== 'all') {
+      state.masterLedgerPrint.year = state.yearFilter;
+    }
+    if (state.statusFilter === 'paid') {
+      state.masterLedgerPrint.status = 'paid';
+    }
+    renderMasterLedgerPrintModalBody();
+    const modal = document.getElementById('masterLedgerPrintModal');
+    if (modal) modal.classList.add('open');
+  };
+
+  window.setLedgerPrintOption = function (key, val) {
+    state.masterLedgerPrint[key] = val;
+    renderMasterLedgerPrintModalBody();
+  };
+
+  window.toggleLedgerPrintFlag = function (key) {
+    state.masterLedgerPrint[key] = !state.masterLedgerPrint[key];
+    renderMasterLedgerPrintModalBody();
+  };
+
+  function renderMasterLedgerPrintModalBody() {
+    const body = document.getElementById('masterLedgerPrintModalBody');
+    if (!body || !state.data) return;
+
+    const data = state.data;
+    const pState = state.masterLedgerPrint;
+
+    const filteredRecords = (data.records || []).filter(r => {
+      if (pState.year !== 'all' && r.year !== pState.year) return false;
+      if (pState.status === 'paid' && !r.isPaid) return false;
+      return true;
+    });
+
+    let totalAmount = 0;
+    filteredRecords.forEach(r => {
+      if (r.total > 0) totalAmount += r.total;
+    });
+
+    const yearLabel = pState.year === 'all' ? 'All Years (2025–2027 / 36 Months)' : `Year ${pState.year}`;
+    const statusLabel = pState.status === 'paid' ? 'Paid Only' : 'All Months (Paid & Scheduled)';
+
+    body.innerHTML = `
+      <!-- Live Scope Preview Banner -->
+      <div class="print-scope-summary-card">
+        <div class="print-scope-left">
+          <div class="print-scope-title">
+            <span>📋</span>
+            <span>${yearLabel}</span>
+            <span class="status-pill ${pState.status === 'paid' ? 'status-paid' : 'status-scheduled'}" style="margin-left:0.35rem;">${statusLabel}</span>
+          </div>
+          <div class="print-scope-subtitle">
+            Mutual Trust Bank &amp; DPS Committee Statement • ${pState.orientation.toUpperCase()} Format
+          </div>
+        </div>
+        <div class="print-scope-stats">
+          <div class="print-scope-stat-box">
+            <div class="print-scope-stat-lbl">Installments</div>
+            <div class="print-scope-stat-val">${filteredRecords.length} Mos</div>
+          </div>
+          <div class="print-scope-stat-box">
+            <div class="print-scope-stat-lbl">Total Amount</div>
+            <div class="print-scope-stat-val">৳${formatNumber(totalAmount)}</div>
+          </div>
+          <div class="print-scope-stat-box">
+            <div class="print-scope-stat-lbl">Contributors</div>
+            <div class="print-scope-stat-val" style="color:var(--accent-indigo);">${data.members.length} Members</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="studio-grid">
+        <!-- Scope Controls Card -->
+        <div class="studio-card">
+          <div class="studio-section-label">
+            <span>📅</span>
+            <span>1. Year Scope (Year-Wise / All)</span>
+          </div>
+          <div class="studio-pill-group">
+            <button type="button" class="studio-option-btn ${pState.year === 'all' ? 'active' : ''}" onclick="setLedgerPrintOption('year', 'all')">
+              <span>All Years (36 Mos)</span>
+            </button>
+            <button type="button" class="studio-option-btn ${pState.year === '2025' ? 'active' : ''}" onclick="setLedgerPrintOption('year', '2025')">
+              <span>2025 (Year 1)</span>
+            </button>
+            <button type="button" class="studio-option-btn ${pState.year === '2026' ? 'active' : ''}" onclick="setLedgerPrintOption('year', '2026')">
+              <span>2026 (Year 2)</span>
+            </button>
+            <button type="button" class="studio-option-btn ${pState.year === '2027' ? 'active' : ''}" onclick="setLedgerPrintOption('year', '2027')">
+              <span>2027 (Year 3)</span>
+            </button>
+          </div>
+
+          <div class="studio-section-label" style="margin-top:0.5rem;">
+            <span>💰</span>
+            <span>2. Status Filter (Paid / All)</span>
+          </div>
+          <div class="studio-pill-group">
+            <button type="button" class="studio-option-btn ${pState.status === 'all' ? 'active' : ''}" onclick="setLedgerPrintOption('status', 'all')">
+              <span>All Months (Paid + Scheduled)</span>
+            </button>
+            <button type="button" class="studio-option-btn ${pState.status === 'paid' ? 'active' : ''}" onclick="setLedgerPrintOption('status', 'paid')">
+              <span>Paid Only</span>
+            </button>
+          </div>
+
+          <div class="studio-section-label" style="margin-top:0.5rem;">
+            <span>📄</span>
+            <span>3. Paper Orientation</span>
+          </div>
+          <div class="studio-pill-group">
+            <button type="button" class="studio-option-btn ${pState.orientation === 'landscape' ? 'active' : ''}" onclick="setLedgerPrintOption('orientation', 'landscape')">
+              <span>Landscape (Recommended for 11 Cols)</span>
+            </button>
+            <button type="button" class="studio-option-btn ${pState.orientation === 'portrait' ? 'active' : ''}" onclick="setLedgerPrintOption('orientation', 'portrait')">
+              <span>Portrait</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Print Formatting & Layout Options -->
+        <div class="studio-card">
+          <div class="studio-section-label">
+            <span>⚙️</span>
+            <span>4. Document Elements</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;">
+            <label class="studio-checkbox-row">
+              <input type="checkbox" ${pState.includeHeader ? 'checked' : ''} onchange="toggleLedgerPrintFlag('includeHeader')">
+              <span><strong>Official Bank &amp; Society Header</strong> (MTB Account &amp; DPS No)</span>
+            </label>
+            <label class="studio-checkbox-row">
+              <input type="checkbox" ${pState.includeSignatures ? 'checked' : ''} onchange="toggleLedgerPrintFlag('includeSignatures')">
+              <span><strong>Committee Signatures Row</strong> (প্রস্তুতকারক, সভাপতি, সাধারণ সম্পাদক)</span>
+            </label>
+            <label class="studio-checkbox-row">
+              <input type="checkbox" ${pState.includeSummary ? 'checked' : ''} onchange="toggleLedgerPrintFlag('includeSummary')">
+              <span><strong>Verified Summary Footers</strong> (Totals, Adjustments &amp; DPS Net Capital)</span>
+            </label>
+          </div>
+
+          <div class="studio-section-label" style="margin-top:0.5rem;">
+            <span>⚡</span>
+            <span>Quick 1-Click Print Presets</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;">
+            <button type="button" class="studio-option-btn" onclick="printMasterLedgerDirect('all', 'all')" style="justify-content:center;">
+              All Years (All 36M)
+            </button>
+            <button type="button" class="studio-option-btn" onclick="printMasterLedgerDirect('all', 'paid')" style="justify-content:center;color:var(--accent-emerald-light);">
+              All Years (Paid Only)
+            </button>
+            <button type="button" class="studio-option-btn" onclick="printMasterLedgerDirect('2025', 'paid')" style="justify-content:center;">
+              2025 (Paid Only)
+            </button>
+            <button type="button" class="studio-option-btn" onclick="printMasterLedgerDirect('2026', 'paid')" style="justify-content:center;">
+              2026 (Paid Only)
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  window.executeMasterLedgerPrint = function (customRecords, customTitle) {
+    const data = state.data;
+    if (!data) return;
+
+    const pState = state.masterLedgerPrint;
+    const printContainer = document.getElementById('masterLedgerPrintContainer');
+    if (!printContainer) return;
+
+    let records = [];
+    let scopeTitle = '';
+    if (customRecords && Array.isArray(customRecords)) {
+      records = customRecords;
+      scopeTitle = customTitle || 'CUSTOM SCREEN FILTER VIEW';
+    } else {
+      records = (data.records || []).filter(r => {
+        if (pState.year !== 'all' && r.year !== pState.year) return false;
+        if (pState.status === 'paid' && !r.isPaid) return false;
+        return true;
+      });
+      const yStr = pState.year === 'all' ? 'ALL YEARS (2025–2027)' : `YEAR ${pState.year}`;
+      const sStr = pState.status === 'paid' ? 'PAID ONLY' : 'ALL INSTALLMENTS';
+      scopeTitle = `${yStr} • ${sStr}`;
+    }
+
+    if (records.length === 0) {
+      showToast('No ledger records match the selected print filter!', 'warning');
+      return;
+    }
+
+    const members = data.members;
+    const memberTotals = {};
+    members.forEach(m => { memberTotals[m.id] = 0; });
+    let totalCollected = 0;
+
+    records.forEach(r => {
+      members.forEach(m => {
+        const val = r.payments[m.id];
+        if (val !== null && val > 0) {
+          memberTotals[m.id] += val;
+        }
+      });
+      if (r.total > 0) {
+        totalCollected += r.total;
+      }
+    });
+
+    let rowsHtml = '';
+    records.forEach((r) => {
+      let memberCells = '';
+      members.forEach(m => {
+        const val = r.payments[m.id];
+        if (val !== null && val > 0) {
+          memberCells += `<td class="num-col">${formatNumber(val)}</td>`;
+        } else {
+          memberCells += `<td class="num-col" style="color:#94a3b8;">—</td>`;
+        }
+      });
+
+      const statusBadge = r.isPaid 
+        ? '<span style="font-weight:700;color:#059669;">PAID</span>'
+        : '<span style="color:#64748b;">SCHEDULED</span>';
+
+      rowsHtml += `
+        <tr>
+          <td style="font-weight:700;text-align:center;">${r.year}</td>
+          <td style="font-weight:600;">${r.month}</td>
+          ${memberCells}
+          <td class="num-col" style="font-weight:700;">${r.total > 0 ? formatNumber(r.total) : '0'}</td>
+          <td style="text-align:center;font-size:0.68rem;">${statusBadge}${r.note ? ` <small style="display:block;font-size:0.6rem;color:#475569;">${escapeHtml(r.note)}</small>` : ''}</td>
+        </tr>
+      `;
+    });
+
+    let memberThs = '';
+    members.forEach(m => {
+      const isHolder = m.id === 'salahuddin';
+      memberThs += `<th class="num-col">${escapeHtml(m.name)}${isHolder ? ' (DPS)' : ''}</th>`;
+    });
+
+    let memberTotalTds = '';
+    members.forEach(m => {
+      memberTotalTds += `<td class="num-col">${formatNumber(memberTotals[m.id] || 0)}</td>`;
+    });
+
+    let verifiedSummaryRows = '';
+    if (pState.includeSummary && pState.year === 'all' && pState.status === 'all' && data.summary) {
+      const sum = data.summary;
+      const gt = sum.grandTotal;
+      const adj = sum.adjustment;
+      const net = sum.netTotal;
+      const dps = sum.dpsTarget;
+
+      let adjTds = '';
+      let netTds = '';
+      let dpsTds = '';
+      members.forEach(m => {
+        adjTds += `<td class="num-col">${(adj.members[m.id] && adj.members[m.id] > 0) ? formatNumber(adj.members[m.id]) : '0'}</td>`;
+        netTds += `<td class="num-col">${formatNumber(net.members[m.id] || 0)}</td>`;
+        dpsTds += `<td class="num-col">${formatNumber(dps.members[m.id] || 0)}</td>`;
+      });
+
+      verifiedSummaryRows = `
+        <tr class="audit-row">
+          <td colspan="2" style="font-weight:700;">ইফতার অনুদান (Adjustment / Donation)</td>
+          ${adjTds}
+          <td class="num-col">${formatNumber(adj.docsTotal)}</td>
+          <td style="text-align:center;font-size:0.65rem;">Mutual Fund</td>
+        </tr>
+        <tr class="audit-row">
+          <td colspan="2" style="font-weight:800;">মূল ডিপিএস তহবিল (Core DPS Net Share)</td>
+          ${netTds}
+          <td class="num-col">${formatNumber(net.docsTotal)}</td>
+          <td style="text-align:center;font-size:0.65rem;color:#4f46e5;font-weight:700;">Audited Net</td>
+        </tr>
+        <tr class="audit-row">
+          <td colspan="2" style="font-weight:800;">অতিরিক্ত বরাদ্দ (DPS Allocation Target)</td>
+          ${dpsTds}
+          <td class="num-col">${formatNumber(dps.docsTotal)}</td>
+          <td style="text-align:center;font-size:0.65rem;color:#0284c7;font-weight:700;">Bank Target</td>
+        </tr>
+      `;
+    }
+
+    const headerHtml = pState.includeHeader ? `
+      <div class="print-ledger-header">
+        <div>
+          <div class="print-ledger-title">Mission Infinity</div>
+          <div class="print-ledger-sub">${escapeHtml(data.bankInfo.bankName)} Limited • Branch: ${escapeHtml(data.bankInfo.branch)} • DPS Portal Ledger System</div>
+          <div class="print-ledger-sub">Main Account No: <strong>${data.bankInfo.accountNumber}</strong> | DPS Account No: <strong>${data.bankInfo.dpsNumber}</strong> | DPS Holder: <strong>SALAHUDDIN &amp; SHAHADAT HOSSAIN</strong></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.85rem;color:#334155;margin-top:0.15rem;">Scope: <strong>${scopeTitle}</strong></div>
+          <div style="font-size:0.75rem;color:#64748b;margin-top:0.25rem;">Printed: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+        </div>
+      </div>
+
+      <div class="print-ledger-meta-grid">
+        <div class="print-ledger-meta-box">
+          <div class="print-ledger-meta-lbl">Scope / Horizon</div>
+          <div class="print-ledger-meta-val">${scopeTitle}</div>
+        </div>
+        <div class="print-ledger-meta-box">
+          <div class="print-ledger-meta-lbl">Total Installments</div>
+          <div class="print-ledger-meta-val">${records.length} Months Included</div>
+        </div>
+        <div class="print-ledger-meta-box">
+          <div class="print-ledger-meta-lbl">Total Cleared Amount</div>
+          <div class="print-ledger-meta-val" style="color:#059669;">৳${formatNumber(totalCollected)}</div>
+        </div>
+        <div class="print-ledger-meta-box">
+          <div class="print-ledger-meta-lbl">Contributors</div>
+          <div class="print-ledger-meta-val">${members.length} Active Members</div>
+        </div>
+      </div>
+    ` : '';
+
+    const signaturesHtml = pState.includeSignatures ? `
+      <div class="print-ledger-sign-row">
+        <div class="print-ledger-sign-line">
+          প্রস্তুতকারক (Prepared By)
+        </div>
+        <div class="print-ledger-sign-line">
+          সভাপতি (President)
+        </div>
+        <div class="print-ledger-sign-line">
+          সাধারণ সম্পাদক (General Secretary)
+        </div>
+      </div>
+    ` : '';
+
+    printContainer.innerHTML = `
+      ${headerHtml}
+
+      <table class="print-ledger-table">
+        <thead>
+          <tr>
+            <th style="width:45px;text-align:center;">Year</th>
+            <th style="width:75px;">Month</th>
+            ${memberThs}
+            <th class="num-col" style="width:85px;">Total (BDT)</th>
+            <th style="width:75px;text-align:center;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="2" style="font-weight:800;text-align:right;">FILTER TOTAL:</td>
+            ${memberTotalTds}
+            <td class="num-col" style="font-weight:800;"><span style="font-family:var(--font-bengali);font-weight:700;margin-right:2px;">৳</span>${formatNumber(totalCollected)}</td>
+            <td style="text-align:center;font-size:0.68rem;color:#059669;font-weight:700;">Reconciled</td>
+          </tr>
+          ${verifiedSummaryRows}
+        </tfoot>
+      </table>
+
+      ${signaturesHtml}
+    `;
+
+    closeModal('masterLedgerPrintModal');
+    window.closeLedgerPrintDropdown();
+
+    const pageStyleId = 'dynamicLedgerPrintPageStyle';
+    let styleEl = document.getElementById(pageStyleId);
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = pageStyleId;
+      document.head.appendChild(styleEl);
+    }
+    const orientation = pState.orientation || 'landscape';
+    styleEl.textContent = `@media print { @page { size: ${orientation}; margin: 8mm 10mm; } }`;
+
+    document.body.classList.add('printing-master-ledger');
+
+    setTimeout(() => {
+      window.print();
+    }, 60);
+
+    const cleanup = () => {
+      document.body.classList.remove('printing-master-ledger');
+      const s = document.getElementById(pageStyleId);
+      if (s) s.remove();
+      window.removeEventListener('afterprint', cleanup);
+    };
+
+    window.addEventListener('afterprint', cleanup);
+    setTimeout(cleanup, 2000);
+  };
+
+  window.printMasterLedgerCurrentView = function () {
+    const data = state.data;
+    if (!data) return;
+
+    const filteredRecords = data.records.filter(r => {
+      if (state.yearFilter !== 'all' && r.year !== state.yearFilter) return false;
+      if (state.statusFilter === 'paid' && !r.isPaid) return false;
+      if (state.statusFilter === 'upcoming' && r.isPaid) return false;
+
+      if (state.searchQuery) {
+        const query = state.searchQuery;
+        const matchesMonth = r.month.toLowerCase().includes(query);
+        const matchesYear = r.year.toLowerCase().includes(query);
+        const matchesNote = r.note && r.note.toLowerCase().includes(query);
+        const matchesTotal = String(r.total).includes(query);
+        let matchesMemberAmount = false;
+        for (const mId in r.payments) {
+          if (r.payments[mId] !== null && String(r.payments[mId]).includes(query)) {
+            matchesMemberAmount = true;
+            break;
+          }
+        }
+        if (!matchesMonth && !matchesYear && !matchesNote && !matchesTotal && !matchesMemberAmount) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const yStr = state.yearFilter === 'all' ? 'ALL YEARS' : `YEAR ${state.yearFilter}`;
+    const sStr = state.statusFilter === 'paid' ? 'PAID ONLY' : (state.statusFilter === 'upcoming' ? 'SCHEDULED ONLY' : 'ALL STATUS');
+    const qStr = state.searchQuery ? ` • SEARCH: "${state.searchQuery}"` : '';
+
+    executeMasterLedgerPrint(filteredRecords, `SCREEN VIEW: ${yStr} • ${sStr}${qStr}`);
+  };
+
+  // ===================================================================
   // Application Bootstrap
   // ===================================================================
   document.addEventListener('DOMContentLoaded', () => {
@@ -2707,7 +3203,11 @@
     const printBtn = document.getElementById('btnPrintLedger');
     if (printBtn) {
       printBtn.addEventListener('click', () => {
-        window.print();
+        if (state.activeTab === 'ledger') {
+          window.openMasterLedgerPrintModal();
+        } else {
+          window.print();
+        }
       });
     }
 
@@ -2717,6 +3217,13 @@
         window.exportMasterLedgerCSV();
       });
     }
+
+    // Close ledger print dropdown on outside clicks
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#ledgerPrintDropdownWrap')) {
+        window.closeLedgerPrintDropdown();
+      }
+    });
 
     // Initial load: Instant render + background Google Sheets live check
     loadData(false);
