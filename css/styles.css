@@ -1353,6 +1353,149 @@ a:hover {
   flex-wrap: wrap;
 }
 
+/* Header Tenure Badge */
+.header-tenure-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="light"] .header-tenure-badge {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+/* 3-Year DPS Schedule Progress Banner */
+.dps-schedule-banner {
+  background: var(--bg-card);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .dps-schedule-banner {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.schedule-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+  min-width: 280px;
+}
+
+.schedule-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .schedule-icon-badge {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.schedule-text-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.schedule-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.schedule-title strong {
+  color: #3b82f6;
+}
+
+[data-theme="light"] .schedule-title strong {
+  color: #2563eb;
+}
+
+.schedule-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.schedule-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 260px;
+  justify-content: flex-end;
+}
+
+.schedule-progress-bar-wrap {
+  width: 140px;
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.schedule-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
+
+.schedule-banner-right .badge-paid {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald-light);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  white-space: nowrap;
+}
+
+[data-theme="light"] .schedule-banner-right .badge-paid {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.schedule-banner-right .badge-remaining {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
 /* Master Table Styling */
 .table-card {
   background: var(--bg-card);

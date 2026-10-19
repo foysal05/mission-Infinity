@@ -418,15 +418,15 @@ window.INITIAL_SHEET_DATA = {
       "payments": {
         "anower": null,
         "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
+        "shahadat": 4000,
+        "mohin": 4000,
+        "foysal": 4000,
         "sumon": null,
         "rajib": null
       },
-      "total": 0,
+      "total": 12000,
       "note": "",
-      "isPaid": false
+      "isPaid": true
     },
     {
       "index": 22,
@@ -665,235 +665,31 @@ window.INITIAL_SHEET_DATA = {
       "total": 0,
       "note": "",
       "isPaid": false
-    },
-    {
-      "index": 36,
-      "year": "2028",
-      "month": "January",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 37,
-      "year": "2028",
-      "month": "February",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 38,
-      "year": "2028",
-      "month": "March",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 39,
-      "year": "2028",
-      "month": "April",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 40,
-      "year": "2028",
-      "month": "May",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 41,
-      "year": "2028",
-      "month": "June",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 42,
-      "year": "2028",
-      "month": "July",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 43,
-      "year": "2028",
-      "month": "August",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 44,
-      "year": "2028",
-      "month": "September",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 45,
-      "year": "2028",
-      "month": "October",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 46,
-      "year": "2028",
-      "month": "November",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
-    },
-    {
-      "index": 47,
-      "year": "2028",
-      "month": "December",
-      "payments": {
-        "anower": null,
-        "salahuddin": null,
-        "shahadat": null,
-        "mohin": null,
-        "foysal": null,
-        "sumon": null,
-        "rajib": null
-      },
-      "total": 0,
-      "note": "",
-      "isPaid": false
     }
   ],
   "summary": {
     "grandTotal": {
       "title": "Grand Total Deposited",
-      "docsTotal": 572631,
+      "docsTotal": 584631,
       "members": {
         "anower": 82708,
         "salahuddin": 82708,
-        "shahadat": 82708,
-        "mohin": 82708,
-        "foysal": 82708,
+        "shahadat": 86708,
+        "mohin": 86708,
+        "foysal": 86708,
         "sumon": 76383,
         "rajib": 82708
       }
     },
     "adjustment": {
       "title": "Adjustment / Return",
-      "docsTotal": 32450,
+      "docsTotal": 44450,
       "members": {
         "anower": 6325,
         "salahuddin": 6325,
-        "shahadat": 6325,
-        "mohin": 6325,
-        "foysal": 6325,
+        "shahadat": 10325,
+        "mohin": 10325,
+        "foysal": 10325,
         "sumon": 0,
         "rajib": 6325
       }
@@ -913,12 +709,12 @@ window.INITIAL_SHEET_DATA = {
     },
     "dpsTarget": {
       "title": "DPS Allocation",
-      "docsTotal": 120001,
+      "docsTotal": 125001,
       "members": {
         "anower": 17143,
         "salahuddin": 17143,
-        "shahadat": 17143,
-        "mohin": 17143,
+        "shahadat": 19143,
+        "mohin": 20143,
         "foysal": 17143,
         "sumon": 17143,
         "rajib": 17143

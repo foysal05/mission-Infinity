@@ -12,8 +12,8 @@ A real-time financial tracking and DPS installment management portal for the **M
 ## 🌟 Key Features
 
 - **Live Google Sheets Synchronization**: Uses client-side JSONP real-time queries to pull live updates whenever entries are modified on Google Sheets. Zero server or backend needed!
-- **Executive Dashboard**: High-level KPIs, 4-year installment milestone progress bars, and special financial adjustments notice.
-- **Master Ledger Table**: Complete 48-month installment table (2025–2028) with sticky columns, year filters, status filters, instant search, and verified summary footers.
+- **Executive Dashboard**: High-level KPIs, 3-year installment milestone progress bars, and special financial adjustments notice.
+- **Master Ledger Table**: Complete 36-month installment table (2025–2027) with sticky columns, year filters, status filters, instant search, and verified summary footers.
 - **Member Profiles & Statements**: Individual contributor ledger cards with one-click export of personal statement CSVs.
 - **Visual Analytics**: Interactive Chart.js charts for cumulative fund growth, monthly deposit trajectories, and contributor allocation shares.
 - **DPS & Savings Growth Simulator**: Interactive compound interest and maturity calculator for customizable durations and interest rates.
@@ -63,4 +63,4 @@ Your site will be live at:
 - **Account Number**: `1311002535350`
 - **DPS Account Number**: `1308010659554`
 - **DPS Account Holder**: SALAHUDDIN
-- **Duration**: 4 Years (2025–2028 / 48 Installments)
+- **Duration**: 3 Years (2025–2027 / 36 Installments)

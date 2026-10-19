@@ -39,7 +39,7 @@
     calculator: {
       monthlyAmount: 27860,
       annualRate: 8.5,
-      durationYears: 4,
+      durationYears: 3,
       membersCount: 7
     },
     exportStudio: {
@@ -169,6 +169,11 @@
         currentYear = yearVal;
       }
 
+      // 3-Year DPS (2025-2027 = 36 Installments). Skip 2028 or any records beyond 36
+      if (currentYear === '2028' || Number(currentYear) > 2027 || records.length >= 36) {
+        continue;
+      }
+
       const payments = {};
       let calculatedSum = 0;
       let hasAnyPayment = false;
@@ -197,26 +202,71 @@
         isPaid: total > 0 || hasAnyPayment
       });
 
-      if (records.length === 48) break;
+      if (records.length === 36) break;
     }
 
-    // Summary Rows Extraction
-    let grandTotalRow = rows.find(r => r[0] === 'Total');
-    let ifterRow = rows.find(r => r[0] && r[0].toLowerCase().includes('ifter'));
-    let dpsRow = rows.find(r => r[0] && r[0].toLowerCase().includes('dps'));
-    let extraRow = rows.find(r => r[0] && r[0].toLowerCase().includes('extra'));
+    // 1. Compute verified member totals directly from records
+    const computedMemberTotals = {};
+    let computedDocsTotal = 0;
+    members.forEach(m => {
+      const sum = records.reduce((acc, r) => {
+        const p = r.payments[m.id];
+        return acc + (p !== null && p > 0 ? p : 0);
+      }, 0);
+      computedMemberTotals[m.id] = sum;
+      computedDocsTotal += sum;
+    });
 
-    const extractSummaryMembers = (row) => {
+    // 2. Helper for matching row headers case-insensitively
+    const isRowMatch = (row, term) => {
+      if (!row) return false;
+      const c0 = (row[0] || '').toLowerCase();
+      const c1 = (row[1] || '').toLowerCase();
+      return c0.includes(term) || c1.includes(term);
+    };
+
+    const ifterIndex = rows.findIndex(r => isRowMatch(r, 'ifter'));
+    const ifterRow = ifterIndex !== -1 ? rows[ifterIndex] : null;
+    const dpsRow = rows.find(r => isRowMatch(r, 'dps'));
+    const extraRow = rows.find(r => isRowMatch(r, 'extra'));
+
+    // 3. Find Grand Total row:
+    // First try explicit labels ('total', 'grand total', 'total deposited')
+    let grandTotalRow = rows.find(r => {
+      const c0 = (r[0] || '').toLowerCase().trim();
+      const c1 = (r[1] || '').toLowerCase().trim();
+      return c0 === 'total' || c1 === 'total' || c0.includes('grand') || c1.includes('grand') || c0.includes('deposited');
+    });
+
+    // If not found by label, look upwards from ifterRow for the row with member deposit totals
+    if (!grandTotalRow && ifterIndex > 0) {
+      for (let idx = ifterIndex - 1; idx >= 0; idx--) {
+        const candidate = rows[idx];
+        const hasMemberAmounts = members.some(m => {
+          const val = Number(candidate[m.colIndex]);
+          return !isNaN(val) && val > 0;
+        });
+        if (hasMemberAmounts) {
+          grandTotalRow = candidate;
+          break;
+        }
+      }
+    }
+
+    const extractSummaryMembers = (row, fallbackTotals = {}) => {
       const res = {};
       members.forEach(m => {
         const val = row ? Number(row[m.colIndex]) : 0;
-        res[m.id] = isNaN(val) ? 0 : val;
+        res[m.id] = (!isNaN(val) && val > 0) ? val : (fallbackTotals[m.id] || 0);
       });
       const total = row ? Number(row[13]) : 0;
-      return { members: res, docsTotal: isNaN(total) ? 0 : total };
+      return {
+        members: res,
+        docsTotal: (!isNaN(total) && total > 0) ? total : (fallbackTotals.docsTotal || 0)
+      };
     };
 
-    const gt = extractSummaryMembers(grandTotalRow);
+    const gt = extractSummaryMembers(grandTotalRow, { ...computedMemberTotals, docsTotal: computedDocsTotal });
     const ift = extractSummaryMembers(ifterRow);
     const dps = extractSummaryMembers(dpsRow);
     const ext = extractSummaryMembers(extraRow);
@@ -237,12 +287,12 @@
       summary: {
         grandTotal: {
           title: 'Grand Total Deposited',
-          docsTotal: gt.docsTotal || 572631,
+          docsTotal: gt.docsTotal || 584631,
           members: gt.members
         },
         adjustment: {
           title: 'Ifter Donation / Adjustment',
-          docsTotal: ift.docsTotal || 32450,
+          docsTotal: ift.docsTotal || 44450,
           members: ift.members
         },
         netTotal: {
@@ -252,7 +302,7 @@
         },
         dpsTarget: {
           title: 'Extra Allocation Target',
-          docsTotal: ext.docsTotal || 120001,
+          docsTotal: ext.docsTotal || 125001,
           members: ext.members
         },
         shahadatSpecial: 5500
@@ -460,10 +510,10 @@
     const data = state.data;
     if (!data) return;
 
-    const totalDeposited = data.summary.grandTotal.docsTotal || 572631;
+    const totalDeposited = data.summary.grandTotal.docsTotal || 584631;
     const netBalance = data.summary.netTotal.docsTotal || 534681;
-    const dpsTarget = data.summary.dpsTarget.docsTotal || 120001;
-    const totalAdjustment = data.summary.adjustment.docsTotal || 32450;
+    const dpsTarget = data.summary.dpsTarget.docsTotal || 125001;
+    const totalAdjustment = data.summary.adjustment.docsTotal || 44450;
 
     const elTotal = document.getElementById('kpiTotalDeposited');
     const elNet = document.getElementById('kpiNetBalance');
@@ -484,7 +534,7 @@
     const container = document.getElementById('yearsSummaryGrid');
     if (!container || !data) return;
 
-    const years = ['2025', '2026', '2027', '2028'];
+    const years = ['2025', '2026', '2027'];
     let html = '';
 
     years.forEach(year => {
@@ -673,6 +723,50 @@
     renderMasterLedgerTable();
   }
 
+  function renderDpsScheduleBanner() {
+    const banner = document.getElementById('dpsScheduleBanner');
+    if (!banner || !state.data) return;
+
+    const records = state.data.records || [];
+    const totalCount = records.length || 36;
+    const paidCount = records.filter(r => r.isPaid).length;
+    const remainingCount = Math.max(0, totalCount - paidCount);
+    const progressPct = Math.min(100, Math.round((paidCount / totalCount) * 100));
+
+    const y25Paid = records.filter(r => r.year === '2025' && r.isPaid).length;
+    const y25Total = records.filter(r => r.year === '2025').length || 12;
+    const y26Paid = records.filter(r => r.year === '2026' && r.isPaid).length;
+    const y26Total = records.filter(r => r.year === '2026').length || 12;
+    const y27Paid = records.filter(r => r.year === '2027' && r.isPaid).length;
+    const y27Total = records.filter(r => r.year === '2027').length || 12;
+
+    banner.innerHTML = `
+      <div class="schedule-banner-left">
+        <div class="schedule-icon-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="schedule-text-info">
+          <div class="schedule-title">
+            3-Year DPS Schedule: <strong>${paidCount} of ${totalCount} Installments Completed</strong> (${progressPct}%)
+          </div>
+          <div class="schedule-subtitle">
+            Years 2025 (${y25Paid}/${y25Total}) • 2026 (${y26Paid}/${y26Total} current) • 2027 (${y27Paid > 0 ? y27Paid + '/' + y27Total : y27Total + ' scheduled'}) = ${totalCount} Months total
+          </div>
+        </div>
+      </div>
+      <div class="schedule-banner-right">
+        <div class="schedule-progress-bar-wrap" title="${progressPct}% Completed">
+          <div class="schedule-progress-bar-fill" style="width: ${progressPct}%;"></div>
+        </div>
+        <span class="badge-paid">${paidCount} Paid</span>
+        <span class="badge-remaining">${remainingCount} Remaining</span>
+      </div>
+    `;
+  }
+
   function initTableFilters() {
     const yearPills = document.querySelectorAll('[data-filter-year]');
     yearPills.forEach(pill => {
@@ -781,6 +875,8 @@
     const tbody = document.getElementById('ledgerTableBody');
     const tfoot = document.getElementById('ledgerTableFoot');
     if (!tbody || !data) return;
+
+    renderDpsScheduleBanner();
 
     const members = data.members;
     const currentInfo = getCurrentMonthInfo();
@@ -983,10 +1079,10 @@
     let html = '';
 
     data.members.forEach((m) => {
-      const grandTotal = data.summary.grandTotal.members[m.id] || 0;
-      const adjustment = data.summary.adjustment.members[m.id] || 0;
-      const netTotal = data.summary.netTotal.members[m.id] || 0;
-      const dpsShare = data.summary.dpsTarget.members[m.id] || 0;
+      const sheetGrandTotal = (data.summary && data.summary.grandTotal && data.summary.grandTotal.members && data.summary.grandTotal.members[m.id]) || 0;
+      const adjustment = (data.summary && data.summary.adjustment && data.summary.adjustment.members && data.summary.adjustment.members[m.id]) || 0;
+      const netTotal = (data.summary && data.summary.netTotal && data.summary.netTotal.members && data.summary.netTotal.members[m.id]) || 0;
+      const dpsShare = (data.summary && data.summary.dpsTarget && data.summary.dpsTarget.members && data.summary.dpsTarget.members[m.id]) || 0;
 
       const initials = m.name
         .split(' ')
@@ -996,11 +1092,14 @@
         .toUpperCase();
 
       let paidMonthsCount = 0;
+      let totalDepositedCalc = 0;
       data.records.forEach(r => {
         if (r.payments[m.id] && r.payments[m.id] > 0) {
           paidMonthsCount++;
+          totalDepositedCalc += r.payments[m.id];
         }
       });
+      const grandTotal = sheetGrandTotal > 0 ? sheetGrandTotal : totalDepositedCalc;
 
       html += `
         <div class="member-card">
@@ -1035,7 +1134,7 @@
             </div>
             <div class="member-stat-row">
               <span class="stat-label">Installments Paid</span>
-              <span class="stat-val">${paidMonthsCount} / 48 Mos</span>
+              <span class="stat-val">${paidMonthsCount} / 36 Mos</span>
             </div>
             ${m.id === 'shahadat' ? `
               <div class="member-stat-row" style="background:rgba(245,158,11,0.06);margin:0 -0.85rem -0.85rem;padding:0.4rem 0.85rem;border-radius:0 0 var(--radius-md) var(--radius-md);">
@@ -1079,10 +1178,6 @@
       </div>
     `;
 
-    const grandTotal = data.summary.grandTotal.members[member.id] || 0;
-    const adjustment = data.summary.adjustment.members[member.id] || 0;
-    const netTotal = data.summary.netTotal.members[member.id] || 0;
-    const dpsShare = data.summary.dpsTarget.members[member.id] || 0;
     const currentInfo = getCurrentMonthInfo();
 
     let rowsHtml = '';
@@ -1138,6 +1233,12 @@
       `;
     });
 
+    const sheetGrandTotal = (data.summary && data.summary.grandTotal && data.summary.grandTotal.members && data.summary.grandTotal.members[member.id]) || 0;
+    const grandTotal = sheetGrandTotal > 0 ? sheetGrandTotal : totalDepositedCalc;
+    const adjustment = (data.summary && data.summary.adjustment && data.summary.adjustment.members && data.summary.adjustment.members[member.id]) || 0;
+    const netTotal = (data.summary && data.summary.netTotal && data.summary.netTotal.members && data.summary.netTotal.members[member.id]) || (grandTotal - adjustment);
+    const dpsShare = (data.summary && data.summary.dpsTarget && data.summary.dpsTarget.members && data.summary.dpsTarget.members[member.id]) || 0;
+
     modalBody.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:0.75rem;margin-bottom:1.25rem;">
         <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:0.75rem;text-align:center;">
@@ -1160,11 +1261,11 @@
 
       <div class="member-statement-toolbar">
         <div class="toolbar-filter-wrap">
-          <span class="toolbar-stat-pill">Installments: <strong id="memberPaidCountText">${paidCount} of 48 Months</strong></span>
+          <span class="toolbar-stat-pill">Installments: <strong id="memberPaidCountText">${paidCount} of 36 Months</strong></span>
           <div class="member-filter-pills" id="memberFilterPills">
-            <button class="member-pill-btn active" onclick="filterMemberStatementTable('all', event)">All (48)</button>
+            <button class="member-pill-btn active" onclick="filterMemberStatementTable('all', event)">All (36)</button>
             <button class="member-pill-btn" onclick="filterMemberStatementTable('paid', event)">Paid (${paidCount})</button>
-            <button class="member-pill-btn" onclick="filterMemberStatementTable('upcoming', event)">Upcoming (${48 - paidCount})</button>
+            <button class="member-pill-btn" onclick="filterMemberStatementTable('upcoming', event)">Upcoming (${36 - paidCount})</button>
           </div>
         </div>
 
@@ -1189,10 +1290,10 @@
               <button class="popover-item" onclick="quickExportMember('csv', 'all')">
                 <div class="popover-item-icon csv">📄</div>
                 <div class="popover-item-content">
-                  <div class="popover-item-title">Standard CSV (All 48 Months)</div>
+                  <div class="popover-item-title">Standard CSV (All 36 Months)</div>
                   <div class="popover-item-desc">Excel UTF-8 format with bank header</div>
                 </div>
-                <span class="popover-tag">48 Mos</span>
+                <span class="popover-tag">36 Mos</span>
               </button>
               <button class="popover-item" onclick="quickExportMember('csv', 'paid')">
                 <div class="popover-item-icon paid">✓</div>
@@ -1256,7 +1357,7 @@
         <div class="modal-footer-info">
           <span style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;color:var(--text-secondary);">
             <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-emerald);"></span>
-            Verified Total: <strong style="color:var(--text-primary);font-family:var(--font-mono);">${formatCurrency(grandTotal)}</strong> (${paidCount} of 48)
+            Verified Total: <strong style="color:var(--text-primary);font-family:var(--font-mono);">${formatCurrency(grandTotal)}</strong> (${paidCount} of 36)
           </span>
         </div>
         <div style="display:flex;gap:0.5rem;align-items:center;">
@@ -1600,7 +1701,7 @@
     lines.push(`"DPS Joint Account No: ${data.bankInfo.dpsNumber}"`);
     lines.push(`"DPS Joint Account Holders: ${data.bankInfo.dpsHolder || 'SALAHUDDIN & SHAHADAT HOSSAIN'}"`);
     lines.push(`"Total Registered Members: ${data.members.length} Active Members"`);
-    lines.push(`"Total Tenure & Records: ${data.records.length} Monthly Installments (2025 - 2028)"`);
+    lines.push(`"Total Tenure & Records: ${data.records.length} Monthly Installments (2025 - 2027)"`);
     lines.push(`"Report Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}"`);
     lines.push('"Currency: Bangladeshi Taka (BDT)"');
     lines.push('"======================================================================================================================================"');
@@ -1648,7 +1749,7 @@
       '',
       ...data.members.map(m => data.summary.grandTotal.members[m.id] || 0),
       data.summary.grandTotal.docsTotal,
-      '"Verified Official MTB Bank Deposit (48 Months)"'
+      '"Verified Official MTB Bank Deposit (36 Months)"'
     ];
     lines.push(gtRow.join(','));
 
@@ -1860,11 +1961,12 @@
     const lines = [];
     const d = delimiter;
 
-    let filterLabel = 'Complete Ledger (All 48 Months)';
+    let filterLabel = 'Complete Ledger (All 36 Months)';
     if (filter === 'paid') filterLabel = 'Paid Installments Only';
     else if (filter === 'upcoming') filterLabel = 'Scheduled / Upcoming Installments';
     else if (filter === '2025') filterLabel = 'Year 2025 Installments';
     else if (filter === '2026') filterLabel = 'Year 2026 Installments';
+    else if (filter === '2027') filterLabel = 'Year 2027 Installments';
 
     if (includeHeader) {
       lines.push('"===================================================================================================="');
@@ -2009,7 +2111,7 @@
     text += `👤 *Member:* ${member.name} (${member.role})\n`;
     text += `🏛️ *Bank:* ${data.bankInfo.bankName} (${data.bankInfo.branch})\n`;
     text += `💳 *DPS A/C:* ${data.bankInfo.dpsNumber} | *Holder:* ${data.bankInfo.dpsHolder}\n`;
-    text += `📅 *Scope:* ${filter === 'paid' ? 'Paid Installments (Cleared)' : 'All 48 Installments'}\n`;
+    text += `📅 *Scope:* ${filter === 'paid' ? 'Paid Installments (Cleared)' : 'All 36 Installments'}\n`;
     text += `──────────────────────\n`;
     text += `💰 *Grand Total Deposited:* ৳${formatNumber(gt)}\n`;
     text += `🌙 *Ifter Donation:* ৳${formatNumber(ift)}\n`;
@@ -2103,6 +2205,8 @@
       filteredRecords = data.records.filter(r => r.year === '2025');
     } else if (st.filter === '2026') {
       filteredRecords = data.records.filter(r => r.year === '2026');
+    } else if (st.filter === '2027') {
+      filteredRecords = data.records.filter(r => r.year === '2027');
     }
 
     let filterSum = 0;
@@ -2156,7 +2260,7 @@
             </div>
             <div class="studio-pill-group">
               <button class="studio-option-btn ${st.filter === 'all' ? 'active' : ''}" onclick="studioSetFilter('all')">
-                All 48 Months
+                All 36 Months
               </button>
               <button class="studio-option-btn ${st.filter === 'paid' ? 'active' : ''}" onclick="studioSetFilter('paid')">
                 ✓ Paid Only (${filteredRecords.length})
@@ -2166,6 +2270,9 @@
               </button>
               <button class="studio-option-btn ${st.filter === '2026' ? 'active' : ''}" onclick="studioSetFilter('2026')">
                 Year 2026 (Active)
+              </button>
+              <button class="studio-option-btn ${st.filter === '2027' ? 'active' : ''}" onclick="studioSetFilter('2027')">
+                Year 2027 (Scheduled)
               </button>
             </div>
           </div>
